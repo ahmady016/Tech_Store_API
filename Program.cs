@@ -1,14 +1,10 @@
 using Microsoft.EntityFrameworkCore;
 using System.Text.Json.Serialization;
-using Microsoft.AspNetCore.Http.Json;
 using MediatR;
 using Serilog;
 
 using DB;
 using Common;
-
-using Products.Queries;
-using Products.Commands;
 
 // Create the Web Server Builder
 var builder = WebApplication.CreateBuilder(args);
