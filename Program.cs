@@ -42,20 +42,21 @@ builder.Services.AddMediatR(x => x.AsScoped(), assembly);
 // Allow CORS
 builder.Services.AddCors();
 
-// Configure JSON options.
-builder.Services.Configure<JsonOptions>(options =>
-{
-    options.SerializerOptions.IncludeFields = true;
-    options.SerializerOptions.WriteIndented = true;
-    options.SerializerOptions.AllowTrailingCommas = true;
-    options.SerializerOptions.DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull;
-    options.SerializerOptions.NumberHandling = JsonNumberHandling.AllowNamedFloatingPointLiterals;
-});
+// Add API Controllers and Configure JSON options.
+builder.Services
+  .AddControllers()
+  .AddJsonOptions(options =>
+  {
+    options.JsonSerializerOptions.IncludeFields = true;
+    options.JsonSerializerOptions.WriteIndented = true;
+    options.JsonSerializerOptions.AllowTrailingCommas = true;
+    options.JsonSerializerOptions.DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull;
+    options.JsonSerializerOptions.NumberHandling = JsonNumberHandling.AllowNamedFloatingPointLiterals;
+  });
 
 // Register swagger APIs docs
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
-
 #endregion
 
 // Build the Web Server
@@ -81,16 +82,10 @@ app.UseCors(config => config
 // static files
 app.UseStaticFiles();
 
-#region register all endpoints:
-
-#region Products:
-app.MapGetRequest<ListProductQuery>("api/products/list");
-app.MapGetRequest<FindProductQuery>("api/products/find");
-app.MapPostRequest<AddProductCommand>("api/products/add");
-app.MapPutRequest<UpdateProductCommand>("api/products/update");
-#endregion
-
-#endregion
+// setup API routes
+app.UseRouting();
+// API routes
+app.MapControllers();
 
 // handle client side routes [catch all routes for SPA]
 app.MapFallbackToFile("index.html");
