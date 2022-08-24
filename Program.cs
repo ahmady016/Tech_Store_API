@@ -36,7 +36,7 @@ builder.Services.AddScoped<ICrudService, CrudService>();
 var assemblies = AppDomain.CurrentDomain.GetAssemblies();
 builder.Services.AddAutoMapper(assemblies);
 // Register MediatR
-var assembly = AppDomain.CurrentDomain.Load("Tech_Store_API");
+var assembly = AppDomain.CurrentDomain.Load("_Tech_Store_API");
 builder.Services.AddMediatR(x => x.AsScoped(), assembly);
 
 // Allow CORS
