@@ -8,10 +8,10 @@ namespace Products;
 
 [ApiController]
 [Route("api/[controller]/[action]")]
-public class ArticlesController : ControllerBase
+public class ProductsController : ControllerBase
 {
   private readonly IMediator _mediator;
-  public ArticlesController(IMediator mediator)
+  public ProductsController(IMediator mediator)
   {
     _mediator = mediator;
   }
