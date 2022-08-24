@@ -1,0 +1,185 @@
+﻿using System.Net;
+using AutoMapper;
+
+using DB.Common;
+using Common;
+
+namespace DB;
+
+public class CrudService : ICrudService
+{
+    private readonly IDBService _dbService;
+    private readonly IMapper _mapper;
+    private readonly ILogger<Entity> _logger;
+    private string _errorMessage;
+
+    public CrudService(
+        IDBService dbService,
+        IMapper mapper,
+        ILogger<Entity> logger
+    )
+    {
+        _dbService = dbService;
+        _mapper = mapper;
+        _logger = logger;
+    }
+
+    private T GetById<T>(Guid id) where T : Entity
+    {
+        var dbItem = _dbService.Find<T>(id);
+        if (dbItem == null)
+        {
+            _errorMessage = $"{typeof(T).Name} Record with Id: {id} Not Found";
+            _logger.LogError(_errorMessage);
+            throw new HttpRequestException(_errorMessage, null, HttpStatusCode.NotFound);
+        }
+        return dbItem;
+    }
+    private List<T> GetByIds<T>(List<Guid> ids) where T : Entity
+    {
+        var list = _dbService.GetList<T>(e => ids.Contains(e.Id));
+        if (list.Count == 0)
+        {
+            _errorMessage = $"No Any {typeof(T).Name} Records Found";
+            _logger.LogError(_errorMessage);
+            throw new HttpRequestException(_errorMessage, null, HttpStatusCode.NotFound);
+        }
+        return list;
+    }
+    private static void FillNonInputValues<T>(T oldItem, T newItem) where T : Entity
+    {
+        newItem.CreatedAt = oldItem.CreatedAt;
+        newItem.CreatedBy = oldItem.CreatedBy;
+
+        newItem.ModifiedAt = oldItem.ModifiedAt;
+        newItem.ModifiedBy = oldItem.ModifiedBy;
+
+        newItem.IsActive = oldItem.IsActive;
+        newItem.ActivatedAt = oldItem.ActivatedAt;
+        newItem.ActivatedBy = oldItem.ActivatedBy;
+        newItem.DisabledAt = oldItem.DisabledAt;
+        newItem.DisabledBy = oldItem.DisabledBy;
+
+        newItem.IsDeleted = oldItem.IsDeleted;
+        newItem.DeletedAt = oldItem.DeletedAt;
+        newItem.DeletedBy = oldItem.DeletedBy;
+        newItem.RestoredAt = oldItem.RestoredAt;
+        newItem.RestoredBy = oldItem.RestoredBy;
+    }
+
+    public List<TDto> List<T, TDto>(string type = "existed") where T : Entity
+    {
+        var list = type.ToLower() switch
+        {
+            "all" => _dbService.GetAll<T>(),
+            "deleted" => _dbService.GetList<T>(e => e.IsDeleted),
+            _ => _dbService.GetList<T>(e => !e.IsDeleted),
+        };
+        return _mapper.Map<List<TDto>>(list);
+    }
+    public PageResult<TDto> ListPage<T, TDto>(string type = "existed", int pageSize = 10, int pageNumber = 1) where T : Entity
+    {
+        var query = type.ToLower() switch
+        {
+            "all" => _dbService.GetQuery<T>(),
+            "deleted" => _dbService.GetQuery<T>(e => e.IsDeleted),
+            _ => _dbService.GetQuery<T>(e => !e.IsDeleted),
+        };
+        var page = _dbService.GetPage(query, pageSize, pageNumber);
+        return new PageResult<TDto>()
+        {
+            PageItems = _mapper.Map<List<TDto>>(page.PageItems),
+            TotalItems = page.TotalItems,
+            TotalPages = page.TotalPages
+        };
+    }
+
+    public TDto Find<T, TDto>(Guid id) where T : Entity
+    {
+        var dbItem = GetById<T>(id);
+        return _mapper.Map<TDto>(dbItem);
+    }
+    public List<TDto> FindList<T, TDto>(string ids) where T : Entity
+    {
+        if (ids == null)
+        {
+            _errorMessage = $"{typeof(T).Name}: Must supply comma separated string of ids";
+            _logger.LogError(_errorMessage);
+            throw new HttpRequestException(_errorMessage, null, HttpStatusCode.BadRequest);
+        }
+        var _ids = ids.SplitAndRemoveEmpty(',').Select(Guid.Parse).ToList();
+        var list = GetByIds<T>(_ids);
+        return _mapper.Map<List<TDto>>(list);
+    }
+
+    public TDto Add<T, TDto, TCreateInput>(TCreateInput input) where T : Entity
+    {
+        var dbItem = _mapper.Map<T>(input);
+        var createdItem = _dbService.Add<T>(dbItem);
+        _dbService.SaveChanges();
+        return _mapper.Map<TDto>(createdItem);
+    }
+    public List<TDto> AddMany<T, TDto, TCreateInput>(List<TCreateInput> inputs) where T : Entity
+    {
+        var dbItems = _mapper.Map<List<T>>(inputs);
+        var createdItems = _dbService.AddAndGetRange<T>(dbItems);
+        _dbService.SaveChanges();
+        return _mapper.Map<List<TDto>>(createdItems);
+    }
+
+    public TDto Update<T, TDto, TUpdateInput>(TUpdateInput input) where T : Entity where TUpdateInput : UpdateInputBase
+    {
+        var oldItem = GetById<T>(input.Id);
+        var newItem = _mapper.Map<T>(input);
+        FillNonInputValues(oldItem, newItem);
+
+        var updatedItem = _dbService.Update<T>(newItem);
+        _dbService.SaveChanges();
+
+        return _mapper.Map<TDto>(updatedItem);
+    }
+    public List<TDto> UpdateMany<T, TDto, TUpdateInput>(List<TUpdateInput> inputs) where T : Entity where TUpdateInput : UpdateInputBase
+    {
+        var oldItems = GetByIds<T>(inputs.Select(x => x.Id).ToList());
+        var newItems = _mapper.Map<List<T>>(inputs);
+
+        for (int i = 0; i < oldItems.Count; i++)
+            FillNonInputValues(oldItems[i], newItems[i]);
+
+        var updatedItems = _dbService.UpdateAndGetRange<T>(newItems);
+        _dbService.SaveChanges();
+
+        return _mapper.Map<List<TDto>>(updatedItems);
+    }
+
+    public bool Delete<T>(Guid id) where T : Entity
+    {
+        var dbItem = GetById<T>(id);
+        _dbService.Delete<T>(dbItem);
+        _dbService.SaveChanges();
+        return true;
+    }
+    public bool Restore<T>(Guid id) where T : Entity
+    {
+        var dbItem = GetById<T>(id);
+        _dbService.Restore<T>(dbItem);
+        _dbService.SaveChanges();
+        return true;
+    }
+
+    public bool Activate<T>(Guid id) where T : Entity
+    {
+        var dbItem = GetById<T>(id);
+        _dbService.Activate<T>(dbItem);
+        _dbService.SaveChanges();
+        return true;
+    }
+    public bool Disable<T>(Guid id) where T : Entity
+    {
+        var dbItem = GetById<T>(id);
+        _dbService.Disable<T>(dbItem);
+        _dbService.SaveChanges();
+        return true;
+    }
+
+}
