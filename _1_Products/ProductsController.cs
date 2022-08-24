@@ -22,18 +22,18 @@ public class ProductsController : ControllerBase
   /// </summary>
   /// <returns>List of ProductDto</returns>
   [HttpGet]
-  public Task<IResult> List([AsParameters] ListProductQuery query)
+  public Task<IResult> List(string type, int? pageSize, int? pageNumber)
   {
-      return _mediator.Send(query);
+      return _mediator.Send(new ListProductQuery(){ ListType = type, PageSize = pageSize, PageNumber = pageNumber });
   }
   /// <summary>
   /// Products/Find/[id]
   /// </summary>
   /// <returns>ProductDto</returns>
   [HttpGet("{id}")]
-  public Task<IResult> Find([AsParameters] FindProductQuery query)
+  public Task<IResult> Find(Guid id)
   {
-      return _mediator.Send(query);
+      return _mediator.Send(new FindProductQuery(){ Id = id });
   }
 
   /// <summary>
