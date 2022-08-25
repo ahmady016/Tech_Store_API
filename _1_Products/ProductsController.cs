@@ -77,7 +77,7 @@ public class ProductsController : ControllerBase
     /// Products/Update
     /// </summary>
     /// <returns>ProductDto</returns>
-    [HttpPost]
+    [HttpPut]
     public Task<IResult> Update(UpdateProductCommand command)
     {
         return _mediator.Send(command);
@@ -86,8 +86,46 @@ public class ProductsController : ControllerBase
     /// Products/UpdateMany
     /// </summary>
     /// <returns>List of ProductDto</returns>
-    [HttpPost]
+    [HttpPut]
     public Task<IResult> UpdateMany(UpdateManyProductsCommand command)
+    {
+        return _mediator.Send(command);
+    }
+
+    /// <summary>
+    /// Products/Delete
+    /// </summary>
+    /// <returns>bool</returns>
+    [HttpPut]
+    public Task<IResult> Delete(DeleteProductCommand command)
+    {
+        return _mediator.Send(command);
+    }
+    /// <summary>
+    /// Products/Restore
+    /// </summary>
+    /// <returns>bool</returns>
+    [HttpPut]
+    public Task<IResult> Restore(RestoreProductCommand command)
+    {
+        return _mediator.Send(command);
+    }
+
+    /// <summary>
+    /// Products/Delete
+    /// </summary>
+    /// <returns>bool</returns>
+    [HttpPut]
+    public Task<IResult> Activate(ActivateProductCommand command)
+    {
+        return _mediator.Send(command);
+    }
+    /// <summary>
+    /// Products/Restore
+    /// </summary>
+    /// <returns>bool</returns>
+    [HttpPut]
+    public Task<IResult> Disable(DisableProductCommand command)
     {
         return _mediator.Send(command);
     }
