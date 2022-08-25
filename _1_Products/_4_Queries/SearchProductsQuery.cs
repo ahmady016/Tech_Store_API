@@ -13,14 +13,15 @@ public class SearchProductsQuery : IRequest<IResult>
     public int? PageNumber { get; set; }
 }
 
-public class SearchProductQueryHandler : IRequestHandler<SearchProductsQuery, IResult> {
+public class SearchProductQueryHandler : IRequestHandler<SearchProductsQuery, IResult>
+{
     private readonly ICrudService _crudService;
-    public SearchProductQueryHandler (ICrudService crudService)
+    public SearchProductQueryHandler(ICrudService crudService)
     {
         _crudService = crudService;
     }
 
-    public async Task<IResult> Handle (
+    public async Task<IResult> Handle(
         SearchProductsQuery request,
         CancellationToken cancellationToken
     )
@@ -28,11 +29,11 @@ public class SearchProductQueryHandler : IRequestHandler<SearchProductsQuery, IR
         IResult result;
         if (request.PageSize is not null && request.PageSize is not null)
             result = Results.Ok(
-              _crudService.QueryPage<Product, ProductDto>(request.Where, request.Select, request.OrderBy, (int)request.PageSize, (int)request.PageNumber)
+                _crudService.QueryPage<Product, ProductDto>(request.Where, request.Select, request.OrderBy, (int) request.PageSize, (int) request.PageNumber)
             );
         else
             result = Results.Ok(
-              _crudService.Query<Product, ProductDto>(request.Where, request.Select, request.OrderBy)
+                _crudService.Query<Product, ProductDto>(request.Where, request.Select, request.OrderBy)
             );
 
         return await Task.FromResult(result);
