@@ -59,18 +59,18 @@ public class ProductsController : ControllerBase
     /// </summary>
     /// <returns>ProductDto</returns>
     [HttpPost]
-    public Task<IResult> Add(AddProductCommand input)
+    public Task<IResult> Add(AddProductCommand command)
     {
-        return _mediator.Send(input);
+        return _mediator.Send(command);
     }
     /// <summary>
     /// Products/AddMany
     /// </summary>
     /// <returns>List of ProductDto</returns>
     [HttpPost]
-    public Task<IResult> AddMany(AddManyProductsCommand input)
+    public Task<IResult> AddMany(AddManyProductsCommand command)
     {
-        return _mediator.Send(input);
+        return _mediator.Send(command);
     }
 
     /// <summary>
@@ -78,9 +78,18 @@ public class ProductsController : ControllerBase
     /// </summary>
     /// <returns>ProductDto</returns>
     [HttpPost]
-    public Task<IResult> Update(UpdateProductCommand input)
+    public Task<IResult> Update(UpdateProductCommand command)
     {
-        return _mediator.Send(input);
+        return _mediator.Send(command);
+    }
+    /// <summary>
+    /// Products/UpdateMany
+    /// </summary>
+    /// <returns>List of ProductDto</returns>
+    [HttpPost]
+    public Task<IResult> UpdateMany(UpdateManyProductsCommand command)
+    {
+        return _mediator.Send(command);
     }
 
 }
