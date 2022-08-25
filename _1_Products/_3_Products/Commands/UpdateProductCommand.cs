@@ -7,7 +7,7 @@ using Common;
 
 namespace Products.Commands;
 
-public class UpdateProductCommand : UpdateInputBase
+public class UpdateProductCommand : IdInput
 {
     public string Title { get; set; }
     public string Description { get; set; }

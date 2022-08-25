@@ -172,7 +172,7 @@ public class CrudService : ICrudService
         return _mapper.Map<List<TDto>>(createdItems);
     }
 
-    public TDto Update<T, TDto, TUpdateInput>(TUpdateInput input) where T : Entity where TUpdateInput : UpdateInputBase
+    public TDto Update<T, TDto, TUpdateInput>(TUpdateInput input) where T : Entity where TUpdateInput : IdInput
     {
         var oldItem = GetById<T>(input.Id);
         var newItem = _mapper.Map<T>(input);
@@ -183,7 +183,7 @@ public class CrudService : ICrudService
 
         return _mapper.Map<TDto>(updatedItem);
     }
-    public List<TDto> UpdateMany<T, TDto, TUpdateInput>(List<TUpdateInput> inputs) where T : Entity where TUpdateInput : UpdateInputBase
+    public List<TDto> UpdateMany<T, TDto, TUpdateInput>(List<TUpdateInput> inputs) where T : Entity where TUpdateInput : IdInput
     {
         var oldItems = GetByIds<T>(inputs.Select(x => x.Id).ToList());
         var newItems = _mapper.Map<List<T>>(inputs);
