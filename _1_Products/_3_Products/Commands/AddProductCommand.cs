@@ -1,9 +1,7 @@
-using System.Runtime.Serialization;
-using MediatR;
-
 using DB;
-using Entities;
 using Dtos;
+using Entities;
+using MediatR;
 
 namespace Products.Commands;
 
@@ -14,7 +12,8 @@ public class AddProductCommand : IRequest<IResult>
     public Category Category { get; set; }
 }
 
-public class AddProductHandler : IRequestHandler<AddProductCommand, IResult> {
+public class AddProductHandler : IRequestHandler<AddProductCommand, IResult>
+{
     private readonly ICrudService _crudService;
     public AddProductHandler(ICrudService crudService)
     {

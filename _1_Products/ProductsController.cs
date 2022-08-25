@@ -1,5 +1,6 @@
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
+
 using Products.Commands;
 using Products.Queries;
 
@@ -62,6 +63,16 @@ public class ProductsController : ControllerBase
     {
         return _mediator.Send(input);
     }
+    /// <summary>
+    /// Products/AddMany
+    /// </summary>
+    /// <returns>List of ProductDto</returns>
+    [HttpPost]
+    public Task<IResult> AddMany(AddManyProductsCommand input)
+    {
+        return _mediator.Send(input);
+    }
+
     /// <summary>
     /// Products/Update
     /// </summary>

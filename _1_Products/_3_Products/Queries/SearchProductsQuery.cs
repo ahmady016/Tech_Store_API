@@ -13,10 +13,10 @@ public class SearchProductsQuery : IRequest<IResult>
     public int? PageNumber { get; set; }
 }
 
-public class SearchProductQueryHandler : IRequestHandler<SearchProductsQuery, IResult>
+public class SearchProductsQueryHandler : IRequestHandler<SearchProductsQuery, IResult>
 {
     private readonly ICrudService _crudService;
-    public SearchProductQueryHandler(ICrudService crudService)
+    public SearchProductsQueryHandler(ICrudService crudService)
     {
         _crudService = crudService;
     }

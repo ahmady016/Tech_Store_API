@@ -11,9 +11,9 @@ public class ListProductsQuery : IRequest<IResult>
     public int? PageNumber { get; set; }
 }
 
-public class ListProductQueryHandler : IRequestHandler<ListProductsQuery, IResult> {
+public class ListProductsQueryHandler : IRequestHandler<ListProductsQuery, IResult> {
     private readonly ICrudService _crudService;
-    public ListProductQueryHandler (ICrudService crudService)
+    public ListProductsQueryHandler (ICrudService crudService)
     {
         _crudService = crudService;
     }

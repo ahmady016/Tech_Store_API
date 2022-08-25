@@ -1,7 +1,8 @@
+using MediatR;
+
 using DB;
 using Dtos;
 using Entities;
-using MediatR;
 
 namespace Products.Queries;
 public class FindProductQuery : IRequest<IResult>
