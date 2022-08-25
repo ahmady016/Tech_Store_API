@@ -4,22 +4,22 @@ using Entities;
 using MediatR;
 
 namespace Products.Queries;
-public class ListProductQuery : IRequest<IResult>
+public class ListProductsQuery : IRequest<IResult>
 {
     public string ListType { get; set; } = "existed";
     public int? PageSize { get; set; }
     public int? PageNumber { get; set; }
 }
 
-public class ListProductHandler : IRequestHandler<ListProductQuery, IResult> {
+public class ListProductQueryHandler : IRequestHandler<ListProductsQuery, IResult> {
     private readonly ICrudService _crudService;
-    public ListProductHandler (ICrudService crudService)
+    public ListProductQueryHandler (ICrudService crudService)
     {
         _crudService = crudService;
     }
 
     public async Task<IResult> Handle (
-        ListProductQuery request,
+        ListProductsQuery request,
         CancellationToken cancellationToken
     )
     {
