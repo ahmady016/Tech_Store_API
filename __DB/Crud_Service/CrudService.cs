@@ -1,8 +1,8 @@
-﻿using System.Net;
+﻿using System.Linq.Dynamic.Core;
+using System.Net;
 using AutoMapper;
-
-using DB.Common;
 using Common;
+using DB.Common;
 
 namespace DB;
 
@@ -71,9 +71,9 @@ public class CrudService : ICrudService
     {
         var list = type.ToLower() switch
         {
-            "all" => _dbService.GetAll<T>(),
-            "deleted" => _dbService.GetList<T>(e => e.IsDeleted),
-            _ => _dbService.GetList<T>(e => !e.IsDeleted),
+        "all" => _dbService.GetAll<T>(),
+        "deleted" => _dbService.GetList<T>(e => e.IsDeleted),
+        _ => _dbService.GetList<T>(e => !e.IsDeleted),
         };
         return _mapper.Map<List<TDto>>(list);
     }
@@ -81,16 +81,61 @@ public class CrudService : ICrudService
     {
         var query = type.ToLower() switch
         {
-            "all" => _dbService.GetQuery<T>(),
-            "deleted" => _dbService.GetQuery<T>(e => e.IsDeleted),
-            _ => _dbService.GetQuery<T>(e => !e.IsDeleted),
+        "all" => _dbService.GetQuery<T>(),
+        "deleted" => _dbService.GetQuery<T>(e => e.IsDeleted),
+        _ => _dbService.GetQuery<T>(e => !e.IsDeleted),
         };
         var page = _dbService.GetPage(query, pageSize, pageNumber);
         return new PageResult<TDto>()
         {
             PageItems = _mapper.Map<List<TDto>>(page.PageItems),
-            TotalItems = page.TotalItems,
-            TotalPages = page.TotalPages
+                TotalItems = page.TotalItems,
+                TotalPages = page.TotalPages
+        };
+    }
+
+    public List<TDto> Query<T, TDto>(string where, string select, string orderBy) where T : Entity
+    {
+        if (where is null && select is null && orderBy is null)
+        {
+            _errorMessage = $"{typeof(T).Name}: Must supply at least one of the following: [where, select, orderBy]";
+            _logger.LogError(_errorMessage);
+            throw new HttpRequestException(_errorMessage, null, HttpStatusCode.NotFound);
+        }
+
+        var query = _dbService.GetQuery<T>();
+        if (where is not null)
+            query = query.Where(where);
+        if (orderBy is not null)
+            query = query.OrderBy(orderBy.RemoveEmptyElements(','));
+        if (select is not null)
+            query = query.Select(select.RemoveEmptyElements(',')) as IQueryable<T>;
+
+        return _mapper.Map<List<TDto>>(query.ToList());
+    }
+    public PageResult<TDto> QueryPage<T, TDto>(string where, string select, string orderBy, int pageSize = 10, int pageNumber = 1) where T : Entity
+    {
+        if (where is null && select is null && orderBy is null)
+        {
+            _errorMessage = $"{typeof(T).Name}: Must supply at least one of the following: [where, select, orderBy]";
+            _logger.LogError(_errorMessage);
+            throw new HttpRequestException(_errorMessage, null, HttpStatusCode.NotFound);
+        }
+
+        var query = _dbService.GetQuery<T>();
+        if (where is not null)
+            query = query.Where(where);
+        if (orderBy is not null)
+            query = query.OrderBy(orderBy.RemoveEmptyElements(','));
+        if (select is not null)
+            query = query.Select(select.RemoveEmptyElements(',')) as IQueryable<T>;
+
+        var page = _dbService.GetPage<T>(query, pageSize, pageNumber);
+        return new PageResult<TDto>()
+        {
+            PageItems = _mapper.Map<List<TDto>>(page.PageItems),
+                TotalItems = page.TotalItems,
+                TotalPages = page.TotalPages
         };
     }
 
