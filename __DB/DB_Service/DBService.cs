@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using System.Linq.Expressions;
+
 using DB.Common;
 
 namespace DB;
@@ -19,23 +20,21 @@ public class DBService : IDBService
         _db.Entry(entity).State = EntityState.Detached;
         return entity;
     }
-    public T GetOne<T>(Expression<Func<T, bool>> where) where T : class
+    public T GetOne<T>(Expression<Func<T, bool>> where) where T : Entity
     {
         return _db.Set<T>()
-                    .AsNoTracking()
-                    .Where(where)
-                    .FirstOrDefault();
+            .AsNoTracking()
+            .Where(where)
+            .FirstOrDefault();
     }
-
-    public T GetOne<T>(Expression<Func<T, bool>> where, params Expression<Func<T, object>>[] includes) where T : class
+    public T GetOne<T>(Expression<Func<T, bool>> where, params Expression<Func<T, object>>[] includes) where T : Entity
     {
         var query = _db.Set<T>().AsNoTracking();
         foreach (var include in includes)
             query = query.Include(include);
         return query.Where(where).FirstOrDefault();
     }
-
-    public T GetOne<T>(Expression<Func<T, bool>> where, params string[] includes) where T : class
+    public T GetOne<T>(Expression<Func<T, bool>> where, params string[] includes) where T : Entity
     {
         var query = _db.Set<T>().AsNoTracking();
         foreach (var include in includes)
@@ -46,66 +45,75 @@ public class DBService : IDBService
     public List<T> GetAll<T>() where T : Entity
     {
         return _db.Set<T>()
-                    .AsNoTracking()
-                    .ToList();
+            .AsNoTracking()
+            .OrderByDescending(e => e.CreatedAt)
+            .ToList();
     }
-
     public List<T> GetList<T>(Expression<Func<T, bool>> where) where T : Entity
     {
         return _db.Set<T>()
-                    .AsNoTracking()
-                    .Where(where)
-                    .ToList();
+            .AsNoTracking()
+            .Where(where)
+            .OrderByDescending(e => e.CreatedAt)
+            .ToList();
     }
-
-    public List<T> GetList<T>(Expression<Func<T, bool>> where, params Expression<Func<T, object>>[] includes) where T : class
+    public List<T> GetList<T>(Expression<Func<T, bool>> where, params Expression<Func<T, object>>[] includes) where T : Entity
     {
         var query = _db.Set<T>().AsNoTracking();
         foreach (var include in includes)
             query = query.Include(include);
-        return query.Where(where).ToList();
+        return query
+            .Where(where)
+            .OrderByDescending(e => e.CreatedAt)
+            .ToList();
     }
-
-    public List<T> GetList<T>(Expression<Func<T, bool>> where, params string[] includes) where T : class
+    public List<T> GetList<T>(Expression<Func<T, bool>> where, params string[] includes) where T : Entity
     {
         var query = _db.Set<T>().AsNoTracking();
         foreach (var include in includes)
             query = query.Include(include);
-        return query.Where(where).ToList();
+        return query
+            .Where(where)
+            .OrderByDescending(e => e.CreatedAt)
+            .ToList();
     }
-    public PageResult<T> GetPage<T>(IQueryable<T> query, int pageSize = 20, int pageNumber = 1) where T : class
+
+    public PageResult<T> GetPage<T>(IQueryable<T> query, int pageSize = 20, int pageNumber = 1) where T : Entity
     {
         var count = query.Count();
         return new PageResult<T>
         {
-            PageItems = query.Skip(pageSize * (pageNumber - 1))
-                            .Take(pageSize)
-                            .ToList(),
+            PageItems = query
+                .Skip(pageSize * (pageNumber - 1))
+                .Take(pageSize)
+                .OrderByDescending(e => e.CreatedAt)
+                .ToList(),
             TotalItems = count,
-            TotalPages = (int)Math.Ceiling((decimal)count/pageSize),
+            TotalPages = (int) Math.Ceiling((decimal) count / pageSize),
         };
     }
-    public int Count<T>() where T : class
+
+    public int Count<T>() where T : Entity
     {
         return _db.Set<T>().Count();
     }
-
-    public int Count<T>(Expression<Func<T, bool>> where) where T : class
+    public int Count<T>(Expression<Func<T, bool>> where) where T : Entity
     {
         return _db.Set<T>().Count(where);
     }
-    public IQueryable<T> GetQuery<T>() where T : class
+
+    public IQueryable<T> GetQuery<T>() where T : Entity
     {
         return _db.Set<T>().AsNoTracking();
     }
-
-    public IQueryable<T> GetQuery<T>(Expression<Func<T, bool>> where) where T : class
+    public IQueryable<T> GetQuery<T>(Expression<Func<T, bool>> where) where T : Entity
     {
-        return _db.Set<T>().AsNoTracking().Where(where);
+        return _db.Set<T>()
+            .AsNoTracking()
+            .Where(where);
     }
     #endregion
 
-        
     #region Commands [Add-Update-Delete]
     public T Add<T>(T item) where T : Entity
     {
@@ -118,8 +126,9 @@ public class DBService : IDBService
     public List<T> AddAndGetRange<T>(List<T> range) where T : Entity
     {
         return range.Select(obj => _db.Set<T>().Add(obj).Entity)
-                    .ToList();
+            .ToList();
     }
+
     public T Update<T>(T item) where T : Entity
     {
         item.ModifiedBy = "app_dev";
@@ -154,7 +163,6 @@ public class DBService : IDBService
         item.ActivatedAt = DateTime.Now;
         _db.Entry(item).State = EntityState.Modified;
     }
-
     public void ActivateRange<T>(List<T> range) where T : Entity
     {
         range.ForEach(item =>
@@ -165,7 +173,6 @@ public class DBService : IDBService
             _db.Entry(item).State = EntityState.Modified;
         });
     }
-
     public void Disable<T>(T item) where T : Entity
     {
         item.IsActive = false;
@@ -173,7 +180,6 @@ public class DBService : IDBService
         item.DisabledAt = DateTime.Now;
         _db.Entry(item).State = EntityState.Modified;
     }
-
     public void DisableRange<T>(List<T> range) where T : Entity
     {
         range.ForEach(item =>
@@ -192,7 +198,6 @@ public class DBService : IDBService
         item.DeletedAt = DateTime.Now;
         _db.Entry(item).State = EntityState.Modified;
     }
-
     public void DeleteRange<T>(List<T> range) where T : Entity
     {
         range.ForEach(item =>
@@ -203,7 +208,6 @@ public class DBService : IDBService
             _db.Entry(item).State = EntityState.Modified;
         });
     }
-
     public void Restore<T>(T item) where T : Entity
     {
         item.IsDeleted = false;
@@ -211,7 +215,6 @@ public class DBService : IDBService
         item.RestoredAt = DateTime.Now;
         _db.Entry(item).State = EntityState.Modified;
     }
-
     public void RestoreRange<T>(List<T> range) where T : Entity
     {
         range.ForEach(item =>
@@ -243,7 +246,6 @@ public class DBService : IDBService
         }
         return false;
     }
-
     public bool GetOneAndRestore<T>(Expression<Func<T, bool>> where) where T : Entity
     {
         var item = _db.Set<T>().Where(where).FirstOrDefault();
@@ -254,7 +256,6 @@ public class DBService : IDBService
         }
         return false;
     }
-
     public bool GetListAndRestore<T>(Expression<Func<T, bool>> where) where T : Entity
     {
         var items = _db.Set<T>().Where(where).ToList();
@@ -266,16 +267,15 @@ public class DBService : IDBService
         return false;
     }
 
-    public void HardDelete<T>(T item) where T : class
+    public void HardDelete<T>(T item) where T : Entity
     {
         _db.Set<T>().Remove(item);
     }
-
-    public void HardDeleteRange<T>(List<T> range) where T : class
+    public void HardDeleteRange<T>(List<T> range) where T : Entity
     {
         _db.Set<T>().RemoveRange(range);
     }
-    public bool GetOneAndHardDelete<T>(Expression<Func<T, bool>> where) where T : class
+    public bool GetOneAndHardDelete<T>(Expression<Func<T, bool>> where) where T : Entity
     {
         var set = _db.Set<T>();
         T item = set.Where(where).FirstOrDefault();
@@ -286,7 +286,7 @@ public class DBService : IDBService
         }
         return false;
     }
-    public bool GetListAndHardDelete<T>(Expression<Func<T, bool>> where) where T : class
+    public bool GetListAndHardDelete<T>(Expression<Func<T, bool>> where) where T : Entity
     {
         var set = _db.Set<T>();
         var items = set.Where(where).ToList();
@@ -299,14 +299,12 @@ public class DBService : IDBService
     }
     #endregion
 
-
     #region UnitOfWork
-    public void Attach<T>(T entity) where T : class
+    public void Attach<T>(T entity) where T : Entity
     {
         _db.Set<T>().Attach(entity);
     }
-
-    public void SetState<T>(T entity, string state) where T : class
+    public void SetState<T>(T entity, string state) where T : Entity
     {
         switch (state)
         {

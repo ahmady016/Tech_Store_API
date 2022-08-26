@@ -1,6 +1,7 @@
-﻿using System.Linq.Dynamic.Core;
-using System.Net;
+﻿using System.Net;
 using AutoMapper;
+using System.Linq.Dynamic.Core;
+
 using Common;
 using DB.Common;
 
