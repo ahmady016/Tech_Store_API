@@ -30,13 +30,27 @@ public class ErrorHandlerMiddleware
 
             context.Response.ContentType = "application/json";
             context.Response.StatusCode = StatusCodes.Contains(_statusCode) ? _statusCode : (int)HttpStatusCode.BadRequest;
-            await context.Response.WriteAsync(_errorMessage);
+            await context.Response.WriteAsync(
+                new ErrorResponse()
+                    {
+                        StatusCode = context.Response.StatusCode,
+                        Message = _errorMessage
+                    }
+                    .ToString()
+            );
         }
         catch (Exception error)
         {
             context.Response.ContentType = "application/json";
             context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
-            await context.Response.WriteAsync(error.Message);
+            await context.Response.WriteAsync(
+                new ErrorResponse()
+                    {
+                        StatusCode = context.Response.StatusCode,
+                        Message = error.Message
+                    }
+                    .ToString()
+            );
         }
     }
 }
