@@ -17,7 +17,8 @@ public class DBService : IDBService
     public T Find<T>(Guid id) where T : Entity
     {
         var entity = _db.Set<T>().Find(id);
-        _db.Entry(entity).State = EntityState.Detached;
+        if(entity is not null)
+            _db.Entry(entity).State = EntityState.Detached;
         return entity;
     }
     public T GetOne<T>(Expression<Func<T, bool>> where) where T : Entity

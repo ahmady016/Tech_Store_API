@@ -28,9 +28,9 @@ public class CrudService : ICrudService
     private T GetById<T>(Guid id) where T : Entity
     {
         var dbItem = _dbService.Find<T>(id);
-        if (dbItem == null)
+        if (dbItem is null)
         {
-            _errorMessage = $"{typeof(T).Name} Record with Id: {id} Not Found";
+            _errorMessage = $"{typeof(T).Name} Record with Id: {id} is Not Found";
             _logger.LogError(_errorMessage);
             throw new HttpRequestException(_errorMessage, null, HttpStatusCode.NotFound);
         }

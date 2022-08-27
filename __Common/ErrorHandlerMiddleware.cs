@@ -1,7 +1,6 @@
-﻿using DB.Common;
-using Microsoft.AspNetCore.Mvc.Filters;
-using Microsoft.AspNetCore.Mvc;
-using System.Net;
+﻿using System.Net;
+
+using DB.Common;
 
 namespace Common;
 
