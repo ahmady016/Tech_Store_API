@@ -3,12 +3,10 @@ using MediatR;
 using DB;
 using Dtos;
 using Entities;
+using Common;
 
 namespace Products.Queries;
-public class FindProductQuery : IRequest<IResult>
-{
-    public Guid Id { get; set; }
-}
+public class FindProductQuery : IdInput {}
 
 public class FindProductQueryHandler : IRequestHandler<FindProductQuery, IResult> {
     private readonly ICrudService _crudService;

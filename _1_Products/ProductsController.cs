@@ -22,7 +22,7 @@ public class ProductsController : ControllerBase
     /// </summary>
     /// <returns>List of ProductDto</returns>
     [HttpGet]
-    public Task<IResult> List(string type, int? pageSize, int? pageNumber)
+    public Task<IResult> List(int? pageSize, int? pageNumber, string type = "existed")
     {
         return _mediator.Send(new ListProductsQuery() { ListType = type, PageSize = pageSize, PageNumber = pageNumber });
     }
