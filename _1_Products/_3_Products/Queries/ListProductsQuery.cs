@@ -24,9 +24,7 @@ public class ListProductsQueryHandler : IRequestHandler<ListProductsQuery, IResu
     )
     {
         IResult result;
-        if(request is null)
-            result = Results.Ok(_crudService.List<Product, ProductDto>());
-        else if (request.PageSize is not null && request.PageSize is not null)
+        if (request.PageSize is not null && request.PageSize is not null)
             result = Results.Ok(_crudService.ListPage<Product, ProductDto>(request.ListType, (int)request.PageSize, (int)request.PageNumber));
         else
             result = Results.Ok(_crudService.List<Product, ProductDto>(request.ListType));

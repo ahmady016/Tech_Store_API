@@ -29,7 +29,7 @@ public class SearchProductsQueryHandler : IRequestHandler<SearchProductsQuery, I
         IResult result;
         if (request.PageSize is not null && request.PageSize is not null)
             result = Results.Ok(
-                _crudService.QueryPage<Product, ProductDto>(request.Where, request.Select, request.OrderBy, (int) request.PageSize, (int) request.PageNumber)
+                _crudService.QueryPage<Product, ProductDto>(request.Where, request.Select, request.OrderBy, (int)request.PageSize, (int)request.PageNumber)
             );
         else
             result = Results.Ok(
