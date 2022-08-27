@@ -72,26 +72,28 @@ public class CrudService : ICrudService
     {
         var list = type.ToLower() switch
         {
-        "all" => _dbService.GetAll<T>(),
-        "deleted" => _dbService.GetList<T>(e => e.IsDeleted),
-        _ => _dbService.GetList<T>(e => !e.IsDeleted),
+            "all" => _dbService.GetAll<T>(),
+            "deleted" => _dbService.GetList<T>(e => e.IsDeleted),
+            _ => _dbService.GetList<T>(e => !e.IsDeleted),
         };
+
         return _mapper.Map<List<TDto>>(list);
     }
     public PageResult<TDto> ListPage<T, TDto>(string type = "existed", int pageSize = 10, int pageNumber = 1) where T : Entity
     {
         var query = type.ToLower() switch
         {
-        "all" => _dbService.GetQuery<T>(),
-        "deleted" => _dbService.GetQuery<T>(e => e.IsDeleted),
-        _ => _dbService.GetQuery<T>(e => !e.IsDeleted),
+            "all" => _dbService.GetQuery<T>(),
+            "deleted" => _dbService.GetQuery<T>(e => e.IsDeleted),
+            _ => _dbService.GetQuery<T>(e => !e.IsDeleted),
         };
+
         var page = _dbService.GetPage(query, pageSize, pageNumber);
         return new PageResult<TDto>()
         {
             PageItems = _mapper.Map<List<TDto>>(page.PageItems),
-                TotalItems = page.TotalItems,
-                TotalPages = page.TotalPages
+            TotalItems = page.TotalItems,
+            TotalPages = page.TotalPages
         };
     }
 
