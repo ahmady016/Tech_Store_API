@@ -78,7 +78,7 @@ public class DBService : IDBService
             .ToList();
     }
 
-    public PageResult<T> GetPage<T>(IQueryable<T> query, int pageSize = 20, int pageNumber = 1) where T : Entity
+    public PageResult<T> GetPage<T>(IQueryable<T> query, int pageSize = 10, int pageNumber = 1) where T : Entity
     {
         var count = query.Count();
         return new PageResult<T>

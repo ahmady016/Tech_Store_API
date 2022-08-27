@@ -8,8 +8,8 @@ public interface ICrudService
     List<TDto> List<T, TDto>(string type = "existed") where T : Entity;
     PageResult<TDto> ListPage<T, TDto>(string type = "existed", int pageSize = 10, int pageNumber = 1) where T : Entity;
 
-    List<TDto> Query<T, TDto>(string where, string select, string orderBy) where T : Entity;
-    PageResult<TDto> QueryPage<T, TDto>(string where, string select, string orderBy, int pageSize = 10, int pageNumber = 1) where T : Entity;
+    IResult Query<T, TDto>(string where, string select, string orderBy) where T : Entity;
+    IResult QueryPage<T, TDto>(string where, string select, string orderBy, int pageSize = 10, int pageNumber = 1) where T : Entity;
 
     TDto Find<T, TDto>(Guid id) where T : Entity;
     List<TDto> FindList<T, TDto>(string ids) where T : Entity;

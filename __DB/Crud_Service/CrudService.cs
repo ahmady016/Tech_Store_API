@@ -95,7 +95,7 @@ public class CrudService : ICrudService
         };
     }
 
-    public List<TDto> Query<T, TDto>(string where, string select, string orderBy) where T : Entity
+    public IResult Query<T, TDto>(string where, string select, string orderBy) where T : Entity
     {
         if (where is null && select is null && orderBy is null)
         {
@@ -112,9 +112,11 @@ public class CrudService : ICrudService
         if (select is not null)
             query = query.Select(select.RemoveEmptyElements(',')) as IQueryable<T>;
 
-        return _mapper.Map<List<TDto>>(query.ToList());
+        if(select is not null)
+            return query.ToList() as IResult;
+        return _mapper.Map<List<TDto>>(query.ToList()) as IResult;
     }
-    public PageResult<TDto> QueryPage<T, TDto>(string where, string select, string orderBy, int pageSize = 10, int pageNumber = 1) where T : Entity
+    public IResult QueryPage<T, TDto>(string where, string select, string orderBy, int pageSize = 10, int pageNumber = 1) where T : Entity
     {
         if (where is null && select is null && orderBy is null)
         {
@@ -132,12 +134,14 @@ public class CrudService : ICrudService
             query = query.Select(select.RemoveEmptyElements(',')) as IQueryable<T>;
 
         var page = _dbService.GetPage<T>(query, pageSize, pageNumber);
+        if(select is not null)
+            return page as IResult;
         return new PageResult<TDto>()
         {
             PageItems = _mapper.Map<List<TDto>>(page.PageItems),
-                TotalItems = page.TotalItems,
-                TotalPages = page.TotalPages
-        };
+            TotalItems = page.TotalItems,
+            TotalPages = page.TotalPages
+        } as IResult;
     }
 
     public TDto Find<T, TDto>(Guid id) where T : Entity
