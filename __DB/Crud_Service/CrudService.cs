@@ -25,28 +25,6 @@ public class CrudService : ICrudService
         _logger = logger;
     }
 
-    private T GetById<T>(Guid id) where T : Entity
-    {
-        var dbItem = _dbService.Find<T>(id);
-        if (dbItem is null)
-        {
-            _errorMessage = $"{typeof(T).Name} Record with Id: {id} is Not Found";
-            _logger.LogError(_errorMessage);
-            throw new HttpRequestException(_errorMessage, null, HttpStatusCode.NotFound);
-        }
-        return dbItem;
-    }
-    private List<T> GetByIds<T>(List<Guid> ids) where T : Entity
-    {
-        var list = _dbService.GetList<T>(e => ids.Contains(e.Id));
-        if (list.Count == 0)
-        {
-            _errorMessage = $"No Any {typeof(T).Name} Records Found";
-            _logger.LogError(_errorMessage);
-            throw new HttpRequestException(_errorMessage, null, HttpStatusCode.NotFound);
-        }
-        return list;
-    }
     private static void FillNonInputValues<T>(T oldItem, T newItem) where T : Entity
     {
         newItem.CreatedAt = oldItem.CreatedAt;
@@ -66,6 +44,28 @@ public class CrudService : ICrudService
         newItem.DeletedBy = oldItem.DeletedBy;
         newItem.RestoredAt = oldItem.RestoredAt;
         newItem.RestoredBy = oldItem.RestoredBy;
+    }
+    public T GetById<T>(Guid id) where T : Entity
+    {
+        var dbItem = _dbService.Find<T>(id);
+        if (dbItem is null)
+        {
+            _errorMessage = $"{typeof(T).Name} Record with Id: {id} is Not Found";
+            _logger.LogError(_errorMessage);
+            throw new HttpRequestException(_errorMessage, null, HttpStatusCode.NotFound);
+        }
+        return dbItem;
+    }
+    public List<T> GetByIds<T>(List<Guid> ids) where T : Entity
+    {
+        var list = _dbService.GetList<T>(e => ids.Contains(e.Id));
+        if (list.Count == 0)
+        {
+            _errorMessage = $"No Any {typeof(T).Name} Records Found";
+            _logger.LogError(_errorMessage);
+            throw new HttpRequestException(_errorMessage, null, HttpStatusCode.NotFound);
+        }
+        return list;
     }
 
     public List<TDto> List<T, TDto>(string type = "existed") where T : Entity
@@ -179,9 +179,11 @@ public class CrudService : ICrudService
         return _mapper.Map<List<TDto>>(createdItems);
     }
 
-    public TDto Update<T, TDto, TUpdateInput>(TUpdateInput input) where T : Entity where TUpdateInput : IdInput
+    public TDto Update<T, TDto, TUpdateInput>(TUpdateInput input, T oldItem = null) where T : Entity where TUpdateInput : IdInput
     {
-        var oldItem = GetById<T>(input.Id);
+        if(oldItem is null)
+            oldItem = GetById<T>(input.Id);
+
         var newItem = _mapper.Map<T>(input);
         FillNonInputValues(oldItem, newItem);
 
@@ -190,9 +192,10 @@ public class CrudService : ICrudService
 
         return _mapper.Map<TDto>(updatedItem);
     }
-    public List<TDto> UpdateMany<T, TDto, TUpdateInput>(List<TUpdateInput> inputs) where T : Entity where TUpdateInput : IdInput
+    public List<TDto> UpdateMany<T, TDto, TUpdateInput>(List<TUpdateInput> inputs, List<T> oldItems = null) where T : Entity where TUpdateInput : IdInput
     {
-        var oldItems = GetByIds<T>(inputs.Select(x => x.Id).ToList());
+        if(oldItems is null)
+            oldItems = GetByIds<T>(inputs.Select(x => x.Id).ToList());
         var newItems = _mapper.Map<List<T>>(inputs);
 
         for (int i = 0; i < oldItems.Count; i++)

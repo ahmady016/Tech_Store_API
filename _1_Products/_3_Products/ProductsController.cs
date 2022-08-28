@@ -112,7 +112,7 @@ public class ProductsController : ControllerBase
     }
 
     /// <summary>
-    /// Products/Delete
+    /// Products/Activate
     /// </summary>
     /// <returns>bool</returns>
     [HttpPut]
@@ -121,7 +121,7 @@ public class ProductsController : ControllerBase
         return _mediator.Send(command);
     }
     /// <summary>
-    /// Products/Restore
+    /// Products/Disable
     /// </summary>
     /// <returns>bool</returns>
     [HttpPut]

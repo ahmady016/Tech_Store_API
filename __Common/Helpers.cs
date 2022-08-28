@@ -7,14 +7,16 @@ public static class Helpers
     // function to return the PropertyInfo of the given propName
     public static PropertyInfo GetProperty(this object obj, string propName)
     {
-        return obj.GetType()
-                  .GetProperty(propName, BindingFlags.IgnoreCase | BindingFlags.Public | BindingFlags.Instance);
+        return obj
+            .GetType()
+            .GetProperty(propName, BindingFlags.IgnoreCase | BindingFlags.Public | BindingFlags.Instance);
     }
     // function to return Array of All PropertiesInfo of the given Object
     public static PropertyInfo[] GetProperties(this object obj)
     {
-        return obj.GetType()
-                  .GetProperties(BindingFlags.Public | BindingFlags.Instance);
+        return obj
+            .GetType()
+            .GetProperties(BindingFlags.Public | BindingFlags.Instance);
     }
     // function that use reflection to get the property based on its name at runtime
     public static object GetValue(this object obj, string propName)
@@ -100,8 +102,8 @@ public static class Helpers
         //Remove empty items from array using where()
         //and trim each element using select(), then return it
         return strArr.Where(item => !string.IsNullOrWhiteSpace(item))
-                        .Select(item => item.Trim())
-                        .ToArray();
+                .Select(item => item.Trim())
+                .ToArray();
     }
     // function that removes any empty elements (white spaces or empty strings)
     // and join it back the resulted string
@@ -116,9 +118,9 @@ public static class Helpers
     public static string GetPrimitivePropsNames(this object obj)
     {
         return string.Join(",",
-          obj.GetProperties()
-            .Where(prop => Type.GetTypeCode(Nullable.GetUnderlyingType(prop.PropertyType) ?? prop.PropertyType) != TypeCode.Object)
-            .Select(prop => $"[{prop.Name}]")
+            obj.GetProperties()
+                .Where(prop => Type.GetTypeCode(Nullable.GetUnderlyingType(prop.PropertyType) ?? prop.PropertyType) != TypeCode.Object)
+                .Select(prop => $"[{prop.Name}]")
         );
     }
 

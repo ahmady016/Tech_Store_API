@@ -42,9 +42,10 @@ public class AddProductHandler : IRequestHandler<AddProductCommand, IResult>
         {
             _errorMessage = $"Product Title already existed.";
             _logger.LogError(_errorMessage);
-            throw new HttpRequestException(_errorMessage, null, HttpStatusCode.BadRequest);
+            throw new HttpRequestException(_errorMessage, null, HttpStatusCode.Conflict);
         }
-        // if not do the normal Add action
+
+        // do the normal Add action
         var createdProduct = _crudService.Add<Product, ProductDto, AddProductCommand>(input);
         return await Task.FromResult(Results.Ok(createdProduct));
     }

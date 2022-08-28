@@ -1,17 +1,12 @@
+using MediatR;
+
 using DB;
 using Dtos;
 using Entities;
-using MediatR;
+using Common;
 
 namespace Products.Queries;
-public class SearchProductsQuery : IRequest<IResult>
-{
-    public string Where { get; set; }
-    public string Select { get; set; }
-    public string OrderBy { get; set; }
-    public int? PageSize { get; set; }
-    public int? PageNumber { get; set; }
-}
+public class SearchProductsQuery : SearchQuery {}
 
 public class SearchProductsQueryHandler : IRequestHandler<SearchProductsQuery, IResult>
 {

@@ -1,9 +1,9 @@
 using MediatR;
 
-using Common;
 using DB;
 using Dtos;
 using Entities;
+using Common;
 
 namespace Products.Queries;
 public class FindProductQuery : IdInput {}

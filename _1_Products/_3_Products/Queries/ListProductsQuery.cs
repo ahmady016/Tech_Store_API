@@ -1,15 +1,12 @@
-﻿using DB;
+﻿using MediatR;
+
+using DB;
 using Dtos;
 using Entities;
-using MediatR;
+using Common;
 
 namespace Products.Queries;
-public class ListProductsQuery : IRequest<IResult>
-{
-    public string ListType { get; set; } = "existed";
-    public int? PageSize { get; set; }
-    public int? PageNumber { get; set; }
-}
+public class ListProductsQuery : ListQuery {}
 
 public class ListProductsQueryHandler : IRequestHandler<ListProductsQuery, IResult> {
     private readonly ICrudService _crudService;
