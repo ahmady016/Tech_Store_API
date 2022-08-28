@@ -40,8 +40,8 @@ public class BrandConfig : EntityConfig<Brand>
             .HasColumnType("varchar(500)");
 
         entity.HasIndex(e => e.Title)
-             .HasDatabaseName("brand_title_unique_index")
-             .IsUnique();
+            .HasDatabaseName("brand_title_unique_index")
+            .IsUnique();
 
     }
 }

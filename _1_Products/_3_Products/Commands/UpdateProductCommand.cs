@@ -1,3 +1,4 @@
+using System.ComponentModel.DataAnnotations;
 using System.Net;
 using MediatR;
 
@@ -10,8 +11,15 @@ namespace Products.Commands;
 
 public class UpdateProductCommand : IdInput
 {
+    [Required(ErrorMessage = "Title is Required")]
+    [StringLength(100, MinimumLength = 5, ErrorMessage = "Title must between 5 and 100 characters")]
     public string Title { get; set; }
+
+    [Required(ErrorMessage = "Description is Required")]
+    [StringLength(400, MinimumLength = 10, ErrorMessage = "DescriptionAr must between 10 and 400 characters")]
     public string Description { get; set; }
+
+    [Required(ErrorMessage = "Category is required")]
     public Category Category { get; set; }
 }
 
