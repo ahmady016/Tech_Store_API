@@ -38,7 +38,7 @@ public class UpdateManyBrandsCommandHandler : IRequestHandler<UpdateManyBrandsCo
 
         // get existedBrandsTitles and modifiedBrandsTitles
         var existedBrandsTitles = oldBrands.Select(p => p.Title);
-        var modifiedBrandsTitles = command.ModifiedBrands.Select(p => p.Title);
+        var modifiedBrandsTitles = command.ModifiedBrands.Select(p => p.ModifiedEntity.Title);
         // get changedBrandsTitles
         var changedBrandsTitles = modifiedBrandsTitles
             .Where(title => !existedBrandsTitles.Contains(title))
@@ -56,7 +56,7 @@ public class UpdateManyBrandsCommandHandler : IRequestHandler<UpdateManyBrandsCo
         }
 
         // do the normal update many items action
-        var updatedBrands = _crudService.UpdateMany<Brand, BrandDto, UpdateBrandCommand>(command.ModifiedBrands, oldBrands);
+        var updatedBrands = _crudService.UpdateMany<Brand, BrandDto, UpdateBrandCommand, AddBrandCommand>(command.ModifiedBrands, oldBrands);
         return await Task.FromResult(Results.Ok(updatedBrands));
     }
 

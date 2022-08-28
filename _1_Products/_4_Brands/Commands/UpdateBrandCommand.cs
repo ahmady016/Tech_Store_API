@@ -9,21 +9,7 @@ using Common;
 
 namespace Brands.Commands;
 
-public class UpdateBrandCommand : IdInput
-{
-    [Required(ErrorMessage = "Title is Required")]
-    [StringLength(100, MinimumLength = 5, ErrorMessage = "Title must between 5 and 100 characters")]
-    public string Title { get; set; }
-
-    [Required(ErrorMessage = "Description is Required")]
-    [StringLength(400, MinimumLength = 10, ErrorMessage = "DescriptionAr must between 10 and 400 characters")]
-    public string Description { get; set; }
-
-    [DataType(DataType.Url)]
-    [Required(ErrorMessage = "Url is Required")]
-    [StringLength(500, MinimumLength = 10, ErrorMessage = "Url must between 10 and 500 characters")]
-    public string LogoUrl { get; set; }
-}
+public class UpdateBrandCommand : UpdateCommand<AddBrandCommand> {}
 
 public class UpdateBrandCommandHandler : IRequestHandler<UpdateBrandCommand, IResult> {
     private readonly IDBService _dbService;
@@ -49,10 +35,10 @@ public class UpdateBrandCommandHandler : IRequestHandler<UpdateBrandCommand, IRe
         // get existed db item
         var oldBrand = _crudService.GetById<Brand>(command.Id);
         // if title changed
-        if(oldBrand.Title != command.Title)
+        if(oldBrand.Title != command.ModifiedEntity.Title)
         {
             // check if the title are existed in db then reject the command and return error
-            var brandWithSameTitle = _dbService.GetOne<Brand>(e => e.Title == command.Title);
+            var brandWithSameTitle = _dbService.GetOne<Brand>(e => e.Title == command.ModifiedEntity.Title);
             if (brandWithSameTitle is not null)
             {
                 _errorMessage = $"Brand Title is already existed.";
@@ -62,7 +48,7 @@ public class UpdateBrandCommandHandler : IRequestHandler<UpdateBrandCommand, IRe
         }
 
         // do the normal update action
-        var updatedBrand = _crudService.Update<Brand, BrandDto, UpdateBrandCommand>(command, oldBrand);
+        var updatedBrand = _crudService.Update<Brand, BrandDto, UpdateBrandCommand, AddBrandCommand>(command, oldBrand);
         return await Task.FromResult(Results.Ok(updatedBrand));
     }
 

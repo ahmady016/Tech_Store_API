@@ -1,4 +1,3 @@
-using System.ComponentModel.DataAnnotations;
 using System.Net;
 using MediatR;
 
@@ -9,19 +8,7 @@ using Common;
 
 namespace Products.Commands;
 
-public class UpdateProductCommand : IdInput
-{
-    [Required(ErrorMessage = "Title is Required")]
-    [StringLength(100, MinimumLength = 5, ErrorMessage = "Title must between 5 and 100 characters")]
-    public string Title { get; set; }
-
-    [Required(ErrorMessage = "Description is Required")]
-    [StringLength(400, MinimumLength = 10, ErrorMessage = "DescriptionAr must between 10 and 400 characters")]
-    public string Description { get; set; }
-
-    [Required(ErrorMessage = "Category is required")]
-    public Category Category { get; set; }
-}
+public class UpdateProductCommand : UpdateCommand<AddProductCommand> {}
 
 public class UpdateProductCommandHandler : IRequestHandler<UpdateProductCommand, IResult> {
     private readonly IDBService _dbService;
@@ -47,10 +34,10 @@ public class UpdateProductCommandHandler : IRequestHandler<UpdateProductCommand,
         // get existed db item
         var oldProduct = _crudService.GetById<Product>(command.Id);
         // if title changed
-        if(oldProduct.Title != command.Title)
+        if(oldProduct.Title != command.ModifiedEntity.Title)
         {
             // check if the title are existed in db then reject the command and return error
-            var productWithSameTitle = _dbService.GetOne<Product>(e => e.Title == command.Title);
+            var productWithSameTitle = _dbService.GetOne<Product>(e => e.Title == command.ModifiedEntity.Title);
             if (productWithSameTitle is not null)
             {
                 _errorMessage = $"Product Title is already existed.";
@@ -60,7 +47,7 @@ public class UpdateProductCommandHandler : IRequestHandler<UpdateProductCommand,
         }
 
         // do the normal update action
-        var updatedProduct = _crudService.Update<Product, ProductDto, UpdateProductCommand>(command, oldProduct);
+        var updatedProduct = _crudService.Update<Product, ProductDto, UpdateProductCommand, AddProductCommand>(command, oldProduct);
         return await Task.FromResult(Results.Ok(updatedProduct));
     }
 

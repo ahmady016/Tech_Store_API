@@ -179,12 +179,12 @@ public class CrudService : ICrudService
         return _mapper.Map<List<TDto>>(createdItems);
     }
 
-    public TDto Update<T, TDto, TUpdateInput>(TUpdateInput input, T oldItem = null) where T : Entity where TUpdateInput : IdInput
+    public TDto Update<T, TDto, TUpdate, TCommand>(TUpdate input, T oldItem = null) where T : Entity where TUpdate : UpdateCommand<TCommand> where TCommand : class
     {
         if(oldItem is null)
             oldItem = GetById<T>(input.Id);
 
-        var newItem = _mapper.Map<T>(input);
+        var newItem = _mapper.Map<T>(input.ModifiedEntity);
         FillNonInputValues(oldItem, newItem);
 
         var updatedItem = _dbService.Update<T>(newItem);
@@ -192,11 +192,11 @@ public class CrudService : ICrudService
 
         return _mapper.Map<TDto>(updatedItem);
     }
-    public List<TDto> UpdateMany<T, TDto, TUpdateInput>(List<TUpdateInput> inputs, List<T> oldItems = null) where T : Entity where TUpdateInput : IdInput
+    public List<TDto> UpdateMany<T, TDto, TUpdate, TCommand>(List<TUpdate> inputs, List<T> oldItems = null) where T : Entity where TUpdate : UpdateCommand<TCommand> where TCommand : class
     {
         if(oldItems is null)
             oldItems = GetByIds<T>(inputs.Select(x => x.Id).ToList());
-        var newItems = _mapper.Map<List<T>>(inputs);
+        var newItems = _mapper.Map<List<T>>(inputs.Select(x => x.ModifiedEntity));
 
         for (int i = 0; i < oldItems.Count; i++)
             FillNonInputValues(oldItems[i], newItems[i]);

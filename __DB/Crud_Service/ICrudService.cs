@@ -19,8 +19,8 @@ public interface ICrudService
     TDto Add<T, TDto, TCreateInput>(TCreateInput input) where T : Entity;
     List<TDto> AddMany<T, TDto, TCreateInput>(List<TCreateInput> inputs) where T : Entity;
 
-    TDto Update<T, TDto, TUpdateInput>(TUpdateInput input, T oldItem = null) where T : Entity where TUpdateInput : IdInput;
-    List<TDto> UpdateMany<T, TDto, TUpdateInput>(List<TUpdateInput> inputs, List<T> oldItems = null) where T : Entity where TUpdateInput : IdInput;
+    TDto Update<T, TDto, TUpdate, TCommand>(TUpdate input, T oldItem = null) where T : Entity where TUpdate : UpdateCommand<TCommand> where TCommand : class;
+    List<TDto> UpdateMany<T, TDto, TUpdate, TCommand>(List<TUpdate> inputs, List<T> oldItems = null) where T : Entity where TUpdate : UpdateCommand<TCommand> where TCommand : class;
 
     bool Delete<T>(Guid id) where T : Entity;
     bool Restore<T>(Guid id) where T : Entity;

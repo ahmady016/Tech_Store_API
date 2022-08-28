@@ -38,7 +38,7 @@ public class UpdateManyProductsCommandHandler : IRequestHandler<UpdateManyProduc
 
         // get existedProductsTitles and modifiedProductsTitles
         var existedProductsTitles = oldProducts.Select(p => p.Title);
-        var modifiedProductsTitles = command.ModifiedProducts.Select(p => p.Title);
+        var modifiedProductsTitles = command.ModifiedProducts.Select(p => p.ModifiedEntity.Title);
         // get changedProductsTitles
         var changedProductsTitles = modifiedProductsTitles
             .Where(title => !existedProductsTitles.Contains(title))
@@ -56,7 +56,7 @@ public class UpdateManyProductsCommandHandler : IRequestHandler<UpdateManyProduc
         }
 
         // do the normal update many items action
-        var updatedProducts = _crudService.UpdateMany<Product, ProductDto, UpdateProductCommand>(command.ModifiedProducts, oldProducts);
+        var updatedProducts = _crudService.UpdateMany<Product, ProductDto, UpdateProductCommand, AddProductCommand>(command.ModifiedProducts, oldProducts);
         return await Task.FromResult(Results.Ok(updatedProducts));
     }
 
