@@ -27,6 +27,7 @@ public class CrudService : ICrudService
 
     private static void FillNonInputValues<T>(T oldItem, T newItem) where T : Entity
     {
+        newItem.Id = oldItem.Id;
         newItem.CreatedAt = oldItem.CreatedAt;
         newItem.CreatedBy = oldItem.CreatedBy;
 
