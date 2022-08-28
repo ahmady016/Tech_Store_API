@@ -6,21 +6,21 @@ using Entities;
 using Dtos;
 using Common;
 
-namespace Products.Commands;
+namespace Brands.Commands;
 
-public class UpdateProductCommand : IdInput
+public class UpdateBrandCommand : IdInput
 {
     public string Title { get; set; }
     public string Description { get; set; }
-    public Category Category { get; set; }
+    public string LogoUrl { get; set; }
 }
 
-public class UpdateProductCommandHandler : IRequestHandler<UpdateProductCommand, IResult> {
+public class UpdateBrandCommandHandler : IRequestHandler<UpdateBrandCommand, IResult> {
     private readonly IDBService _dbService;
     private readonly ICrudService _crudService;
     private readonly ILogger<Brand> _logger;
     private string _errorMessage;
-    public UpdateProductCommandHandler(
+    public UpdateBrandCommandHandler(
         IDBService dbService,
         ICrudService crudService,
         ILogger<Brand> logger
@@ -32,28 +32,28 @@ public class UpdateProductCommandHandler : IRequestHandler<UpdateProductCommand,
     }
 
     public async Task<IResult> Handle(
-        UpdateProductCommand command,
+        UpdateBrandCommand command,
         CancellationToken cancellationToken
     )
     {
         // get existed db item
-        var oldProduct = _crudService.GetById<Product>(command.Id);
+        var oldBrand = _crudService.GetById<Brand>(command.Id);
         // if title changed
-        if(oldProduct.Title != command.Title)
+        if(oldBrand.Title != command.Title)
         {
             // check if the title are existed in db then reject the command and return error
-            var productWithSameTitle = _dbService.GetOne<Product>(e => e.Title == command.Title);
-            if (productWithSameTitle is not null)
+            var brandWithSameTitle = _dbService.GetOne<Brand>(e => e.Title == command.Title);
+            if (brandWithSameTitle is not null)
             {
-                _errorMessage = $"Product Title is already existed.";
+                _errorMessage = $"Brand Title is already existed.";
                 _logger.LogError(_errorMessage);
                 throw new HttpRequestException(_errorMessage, null, HttpStatusCode.Conflict);
             }
         }
 
         // do the normal update action
-        var updatedProduct = _crudService.Update<Product, ProductDto, UpdateProductCommand>(command, oldProduct);
-        return await Task.FromResult(Results.Ok(updatedProduct));
+        var updatedBrand = _crudService.Update<Brand, BrandDto, UpdateBrandCommand>(command, oldBrand);
+        return await Task.FromResult(Results.Ok(updatedBrand));
     }
 
 }
