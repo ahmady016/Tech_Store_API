@@ -24,13 +24,13 @@ public class AddBrandCommand : IRequest<IResult>
     public string LogoUrl { get; set; }
 }
 
-public class AddBrandHandler : IRequestHandler<AddBrandCommand, IResult>
+public class AddBrandCommandHandler : IRequestHandler<AddBrandCommand, IResult>
 {
     private readonly IDBService _dbService;
     private readonly ICrudService _crudService;
     private readonly ILogger<Brand> _logger;
     private string _errorMessage;
-    public AddBrandHandler(
+    public AddBrandCommandHandler(
         IDBService dbService,
         ICrudService crudService,
         ILogger<Brand> logger

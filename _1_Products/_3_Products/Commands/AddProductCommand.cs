@@ -22,13 +22,13 @@ public class AddProductCommand : IRequest<IResult>
     public Category Category { get; set; }
 }
 
-public class AddProductHandler : IRequestHandler<AddProductCommand, IResult>
+public class AddProductCommandHandler : IRequestHandler<AddProductCommand, IResult>
 {
     private readonly IDBService _dbService;
     private readonly ICrudService _crudService;
     private readonly ILogger<Product> _logger;
     private string _errorMessage;
-    public AddProductHandler(
+    public AddProductCommandHandler(
         IDBService dbService,
         ICrudService crudService,
         ILogger<Product> logger
