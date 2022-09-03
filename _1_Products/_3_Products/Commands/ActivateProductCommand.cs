@@ -21,7 +21,7 @@ public class ActivateProductCommandHandler : IRequestHandler<ActivateProductComm
         CancellationToken cancellationToken
     )
     {
-        _ = _crudService.Delete<Product>(command.Id);
+        _ = _crudService.Activate<Product>(command.Id);
         return await Task.FromResult(Results.Ok($"Product with Id: {command.Id} was activated successfully"));
     }
 

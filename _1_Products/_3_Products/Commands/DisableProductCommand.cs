@@ -21,7 +21,7 @@ public class DisableProductCommandHandler : IRequestHandler<DisableProductComman
         CancellationToken cancellationToken
     )
     {
-        _ = _crudService.Delete<Product>(command.Id);
+        _ = _crudService.Disable<Product>(command.Id);
         return await Task.FromResult(Results.Ok($"Product with Id: {command.Id} was disabled successfully"));
     }
 

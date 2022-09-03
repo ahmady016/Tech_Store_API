@@ -22,8 +22,8 @@ public class FindBrandsQueryHandler : IRequestHandler<FindBrandsQuery, IResult> 
         CancellationToken cancellationToken
     )
     {
-        var result = Results.Ok(_crudService.FindList<Brand, BrandDto>(request.Ids));
-        return await Task.FromResult(result);
+        var brands = _crudService.FindList<Brand, BrandDto>(request.Ids);
+        return await Task.FromResult(Results.Ok(brands));
     }
 
 }
