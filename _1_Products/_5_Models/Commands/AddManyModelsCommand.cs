@@ -48,7 +48,7 @@ public class AddManyModelsCommandHandler : IRequestHandler<AddManyModelsCommand,
         var productIds = command.NewModels.Select(e => e.ProductId).ToList();
         // check if any ProductId is not existed in db then reject the command and return error
         var existedProducts = _dbService.GetList<Product>(p => productIds.Contains(p.Id));
-        if (existedProducts.Count > 0)
+        if (existedProducts.Count != command.NewModels.Count)
         {
             _errorMessage = $"one or more ProductId are not existed.";
             _logger.LogError(_errorMessage);
@@ -59,7 +59,7 @@ public class AddManyModelsCommandHandler : IRequestHandler<AddManyModelsCommand,
         var brandIds = command.NewModels.Select(e => e.BrandId).ToList();
         // check if any BrandId is not existed in db then reject the command and return error
         var existedBrands = _dbService.GetList<Brand>(p => brandIds.Contains(p.Id));
-        if (existedBrands.Count > 0)
+        if (existedBrands.Count != command.NewModels.Count)
         {
             _errorMessage = $"one or more BrandId are not existed.";
             _logger.LogError(_errorMessage);
