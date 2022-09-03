@@ -33,6 +33,7 @@ public class UpdateModelCommandHandler : IRequestHandler<UpdateModelCommand, IRe
     {
         // get existed db item
         var oldModel = _crudService.GetById<Model>(command.Id);
+
         // if title changed
         if(oldModel.Title != command.ModifiedEntity.Title)
         {
@@ -43,6 +44,32 @@ public class UpdateModelCommandHandler : IRequestHandler<UpdateModelCommand, IRe
                 _errorMessage = $"Model Title is already existed.";
                 _logger.LogError(_errorMessage);
                 throw new HttpRequestException(_errorMessage, null, HttpStatusCode.Conflict);
+            }
+        }
+
+        // if productId changed
+        if(oldModel.ProductId != command.ModifiedEntity.ProductId)
+        {
+            // check if the product is not existed in db then reject the command and return error
+            var existedProduct = _dbService.GetOne<Product>(p => p.Id == command.ModifiedEntity.ProductId);
+            if (existedProduct is null)
+            {
+                _errorMessage = $"Product with Id: {command.ModifiedEntity.ProductId} not existed.";
+                _logger.LogError(_errorMessage);
+                throw new HttpRequestException(_errorMessage, null, HttpStatusCode.NotFound);
+            }
+        }
+
+        // if brandId changed
+        if(oldModel.BrandId != command.ModifiedEntity.BrandId)
+        {
+            // check if the brand is not existed in db then reject the command and return error
+            var existedBrand = _dbService.GetOne<Brand>(p => p.Id == command.ModifiedEntity.BrandId);
+            if (existedBrand is null)
+            {
+                _errorMessage = $"Brand with Id: {command.ModifiedEntity.BrandId} not existed.";
+                _logger.LogError(_errorMessage);
+                throw new HttpRequestException(_errorMessage, null, HttpStatusCode.NotFound);
             }
         }
 

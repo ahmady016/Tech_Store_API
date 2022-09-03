@@ -40,12 +40,12 @@ public class AddProductCommandHandler : IRequestHandler<AddProductCommand, IResu
     }
 
     public async Task<IResult> Handle(
-        AddProductCommand input,
+        AddProductCommand command,
         CancellationToken cancellationToken
     )
     {
         // check if the title are existed in db then reject the command and return error
-        var existedProduct = _dbService.GetOne<Product>(p => p.Title == input.Title);
+        var existedProduct = _dbService.GetOne<Product>(p => p.Title == command.Title);
         if (existedProduct is not null)
         {
             _errorMessage = $"Product Title already existed.";
@@ -54,7 +54,7 @@ public class AddProductCommandHandler : IRequestHandler<AddProductCommand, IResu
         }
 
         // do the normal Add action
-        var createdProduct = _crudService.Add<Product, ProductDto, AddProductCommand>(input);
+        var createdProduct = _crudService.Add<Product, ProductDto, AddProductCommand>(command);
         return await Task.FromResult(Results.Ok(createdProduct));
     }
 

@@ -42,12 +42,12 @@ public class AddBrandCommandHandler : IRequestHandler<AddBrandCommand, IResult>
     }
 
     public async Task<IResult> Handle(
-        AddBrandCommand input,
+        AddBrandCommand command,
         CancellationToken cancellationToken
     )
     {
         // check if the title are existed in db then reject the command and return error
-        var existedBrand = _dbService.GetOne<Brand>(p => p.Title == input.Title);
+        var existedBrand = _dbService.GetOne<Brand>(p => p.Title == command.Title);
         if (existedBrand is not null)
         {
             _errorMessage = $"Brand Title already existed.";
@@ -56,7 +56,7 @@ public class AddBrandCommandHandler : IRequestHandler<AddBrandCommand, IResult>
         }
 
         // do the normal Add action
-        var createdBrand = _crudService.Add<Brand, BrandDto, AddBrandCommand>(input);
+        var createdBrand = _crudService.Add<Brand, BrandDto, AddBrandCommand>(command);
         return await Task.FromResult(Results.Ok(createdBrand));
     }
 

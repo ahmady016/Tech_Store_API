@@ -64,12 +64,12 @@ public class AddModelCommandHandler : IRequestHandler<AddModelCommand, IResult>
     }
 
     public async Task<IResult> Handle(
-        AddModelCommand input,
+        AddModelCommand command,
         CancellationToken cancellationToken
     )
     {
         // check if the title are existed in db then reject the command and return error
-        var existedModel = _dbService.GetOne<Model>(p => p.Title == input.Title);
+        var existedModel = _dbService.GetOne<Model>(p => p.Title == command.Title);
         if (existedModel is not null)
         {
             _errorMessage = $"Model Title already existed.";
@@ -77,8 +77,26 @@ public class AddModelCommandHandler : IRequestHandler<AddModelCommand, IResult>
             throw new HttpRequestException(_errorMessage, null, HttpStatusCode.Conflict);
         }
 
+        // check if the product is not existed in db then reject the command and return error
+        var existedProduct = _dbService.GetOne<Product>(p => p.Id == command.ProductId);
+        if (existedProduct is null)
+        {
+            _errorMessage = $"Product with Id: {command.ProductId} not existed.";
+            _logger.LogError(_errorMessage);
+            throw new HttpRequestException(_errorMessage, null, HttpStatusCode.NotFound);
+        }
+
+        // check if the brand is not existed in db then reject the command and return error
+        var existedBrand = _dbService.GetOne<Brand>(p => p.Id == command.BrandId);
+        if (existedBrand is null)
+        {
+            _errorMessage = $"Brand with Id: {command.BrandId} not existed.";
+            _logger.LogError(_errorMessage);
+            throw new HttpRequestException(_errorMessage, null, HttpStatusCode.NotFound);
+        }
+
         // do the normal Add action
-        var createdModel = _crudService.Add<Model, ModelDto, AddModelCommand>(input);
+        var createdModel = _crudService.Add<Model, ModelDto, AddModelCommand>(command);
         return await Task.FromResult(Results.Ok(createdModel));
     }
 
