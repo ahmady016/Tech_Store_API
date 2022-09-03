@@ -3,8 +3,10 @@
 using Dtos;
 using Entities;
 
-using Brands.Commands;
 using Products.Commands;
+using Brands.Commands;
+using Models.Commands;
+
 namespace Common;
 public class AutoMapperProfile : Profile
 {
@@ -17,6 +19,10 @@ public class AutoMapperProfile : Profile
         CreateMap<Brand, BrandDto>().ReverseMap();
         CreateMap<Brand, AddBrandCommand>().ReverseMap();
         CreateMap<Brand, UpdateBrandCommand>().ReverseMap();
+
+        CreateMap<Model, ModelDto>().ReverseMap();
+        CreateMap<Brand, AddModelCommand>().ReverseMap();
+        CreateMap<Brand, UpdateModelCommand>().ReverseMap();
 
     }
 }
