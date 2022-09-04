@@ -56,8 +56,8 @@ public class ModelConfig : EntityConfig<Model>
             .HasColumnType("tinyint");
 
         entity.HasIndex(e => e.Title)
-             .HasDatabaseName("model_title_unique_index")
-             .IsUnique();
+            .HasDatabaseName("model_title_unique_index")
+            .IsUnique();
 
         entity.Property(e => e.ProductId)
             .HasColumnName("product_id")

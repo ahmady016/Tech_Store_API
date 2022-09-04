@@ -48,8 +48,8 @@ public class ProductConfig : EntityConfig<Product>
             .HasColumnType("tinyint");
 
         entity.HasIndex(e => e.Title)
-             .HasDatabaseName("product_title_unique_index")
-             .IsUnique();
+            .HasDatabaseName("product_title_unique_index")
+            .IsUnique();
 
     }
 }
