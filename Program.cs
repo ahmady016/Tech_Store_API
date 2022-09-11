@@ -1,10 +1,12 @@
 using Microsoft.EntityFrameworkCore;
 using System.Text.Json.Serialization;
+using Microsoft.AspNetCore.Identity;
 using MediatR;
 using Serilog;
 
 using DB;
 using Common;
+using Entities;
 
 // Create the Web Server Builder
 var builder = WebApplication.CreateBuilder(args);
@@ -23,6 +25,24 @@ builder.Logging.AddSerilog(logger);
 // Register the db context
 var dbConnection = builder.Configuration.GetConnectionString("Default");
 builder.Services.AddDbContext<TechStoreDB>(options => options.UseSqlServer(dbConnection));
+
+// Register the Identity
+builder.Services.AddIdentity<User, IdentityRole>(options =>
+  {
+    options.User.RequireUniqueEmail = true;
+    options.SignIn.RequireConfirmedEmail = true;
+
+    options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(15);
+    options.Lockout.MaxFailedAccessAttempts = 5;
+
+    options.Password.RequiredLength = 8;
+    options.Password.RequireNonAlphanumeric = true;
+    options.Password.RequireUppercase = true;
+    options.Password.RequireLowercase = true;
+    options.Password.RequireDigit = true;
+  })
+  .AddEntityFrameworkStores<TechStoreDB>()
+  .AddDefaultTokenProviders();
 
 // Register DB and CrudService
 builder.Services.AddScoped<IDBService, DBService>();
