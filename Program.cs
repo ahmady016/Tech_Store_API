@@ -1,12 +1,15 @@
 using Microsoft.EntityFrameworkCore;
 using System.Text.Json.Serialization;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
 using MediatR;
 using Serilog;
 
 using DB;
 using Common;
 using Entities;
+using Auth;
 
 // Create the Web Server Builder
 var builder = WebApplication.CreateBuilder(args);
@@ -21,6 +24,8 @@ builder.Logging.AddSerilog(logger);
 #endregion
 
 #region Add services to the container:
+// Pass Configuration to AuthHelpers static class
+AuthHelpers.Initialize(builder.Configuration);
 
 // Register the db context
 var dbConnection = builder.Configuration.GetConnectionString("Default");
@@ -43,6 +48,28 @@ builder.Services.AddIdentity<User, IdentityRole>(options =>
   })
   .AddEntityFrameworkStores<TechStoreDB>()
   .AddDefaultTokenProviders();
+
+  // Register Auth
+builder.Services.AddAuthentication(options =>
+  {
+    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+    options.DefaultSignInScheme = JwtBearerDefaults.AuthenticationScheme;
+  })
+  .AddJwtBearer(options =>
+  {
+      options.TokenValidationParameters = AuthHelpers.GetTokenValidationOptions(validateLifetime: true);
+      options.Events = new JwtBearerEvents()
+      {
+        OnAuthenticationFailed = context =>
+        {
+          if (context.Exception.GetType() == typeof(SecurityTokenExpiredException))
+            context.Response.Headers.Add("Token-Expired", "true");
+          return Task.CompletedTask;
+        }
+      };
+  });
+builder.Services.AddAuthorization();
 
 // Register DB and CrudService
 builder.Services.AddScoped<IDBService, DBService>();
@@ -100,6 +127,11 @@ app.UseStaticFiles();
 
 // setup API routes
 app.UseRouting();
+
+// Auth
+app.UseAuthentication();
+app.UseAuthorization();
+
 // API routes
 app.MapControllers();
 
