@@ -15,7 +15,7 @@ public class AddProductCommand : IRequest<IResult>
     public string Title { get; set; }
 
     [Required(ErrorMessage = "Description is Required")]
-    [StringLength(400, MinimumLength = 10, ErrorMessage = "DescriptionAr must between 10 and 400 characters")]
+    [StringLength(400, MinimumLength = 10, ErrorMessage = "Description must between 10 and 400 characters")]
     public string Description { get; set; }
 
     [Required(ErrorMessage = "Category is required")]

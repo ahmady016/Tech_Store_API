@@ -3,6 +3,7 @@
 using Dtos;
 using Entities;
 
+using Auth.Commands;
 using Products.Commands;
 using Brands.Commands;
 using Models.Commands;
@@ -12,6 +13,9 @@ public class AutoMapperProfile : Profile
 {
     public AutoMapperProfile()
     {
+        CreateMap<User, UserDto>().ReverseMap();
+        CreateMap<User, SignupCommand>().ReverseMap();
+
         CreateMap<Product, ProductDto>().ReverseMap();
         CreateMap<Product, AddProductCommand>().ReverseMap();
         CreateMap<Product, UpdateProductCommand>().ReverseMap();

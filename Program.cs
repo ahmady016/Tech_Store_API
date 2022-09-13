@@ -58,18 +58,23 @@ builder.Services.AddAuthentication(options =>
   })
   .AddJwtBearer(options =>
   {
-      options.TokenValidationParameters = AuthHelpers.GetTokenValidationOptions(validateLifetime: true);
-      options.Events = new JwtBearerEvents()
+    options.SaveToken = true;
+    options.TokenValidationParameters = AuthHelpers.GetTokenValidationOptions(validateLifetime: true);
+    options.Events = new JwtBearerEvents()
+    {
+      OnAuthenticationFailed = context =>
       {
-        OnAuthenticationFailed = context =>
-        {
-          if (context.Exception.GetType() == typeof(SecurityTokenExpiredException))
-            context.Response.Headers.Add("Token-Expired", "true");
-          return Task.CompletedTask;
-        }
-      };
+        if (context.Exception.GetType() == typeof(SecurityTokenExpiredException))
+          context.Response.Headers.Add("Token-Expired", "true");
+        return Task.CompletedTask;
+      }
+    };
   });
 builder.Services.AddAuthorization();
+
+// Register EmailService
+builder.Services.AddScoped<IEmailService, EmailService>();
+builder.Services.Configure<MailOptions>(builder.Configuration.GetSection("SMTP"));
 
 // Register DB and CrudService
 builder.Services.AddScoped<IDBService, DBService>();

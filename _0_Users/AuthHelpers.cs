@@ -3,6 +3,7 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 
+using Auth.Commands;
 namespace Auth;
 
 public static class AuthHelpers
@@ -32,7 +33,7 @@ public static class AuthHelpers
         };
     }
 
-    public static string GenerateAccessToken(List<Claim> claims)
+    public static TokenResponse GenerateAccessToken(List<Claim> claims)
     {
         var tokenDescriptor = new SecurityTokenDescriptor
         {
@@ -43,7 +44,12 @@ public static class AuthHelpers
             Expires = DateTime.Now.AddMinutes(TokenValidityInMinutes),
         };
         var tokenHandler = new JwtSecurityTokenHandler();
-        return tokenHandler.WriteToken(tokenHandler.CreateToken(tokenDescriptor));
+        var jwtSecurityToken = tokenHandler.CreateToken(tokenDescriptor);
+        return new TokenResponse()
+        {
+            AccessToken = tokenHandler.WriteToken(jwtSecurityToken),
+            ExpiresAt = jwtSecurityToken.ValidTo
+        };
     }
     public static List<Claim> ValidateTokenAndGetClaims(string token)
     {
