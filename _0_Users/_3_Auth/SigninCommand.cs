@@ -3,15 +3,10 @@ using Microsoft.AspNetCore.Identity;
 using System.Security.Claims;
 using MediatR;
 
+using DB;
 using Entities;
 
 namespace Auth.Commands;
-
-public class TokenResponse
-{
-    public string AccessToken { get; set; }
-    public DateTime ExpiresAt { get; set; }
-}
 
 public class SigninCommand : IRequest<IResult>
 {
@@ -28,13 +23,16 @@ public class SigninCommand : IRequest<IResult>
 public class SigninCommandHandler : IRequestHandler<SigninCommand, IResult> {
     private readonly IConfiguration _config;
     private readonly UserManager<User> _userManager;
+    private readonly IDBService _dbService;
     public SigninCommandHandler(
         IConfiguration Configuration,
-        UserManager<User> userManager
+        UserManager<User> userManager,
+        IDBService dbService
     )
     {
-        _userManager = userManager;
         _config = Configuration;
+        _userManager = userManager;
+        _dbService = dbService;
     }
 
     public async Task<IResult> Handle (
@@ -48,6 +46,7 @@ public class SigninCommandHandler : IRequestHandler<SigninCommand, IResult> {
             var isValidPassword = await _userManager.CheckPasswordAsync(existedUser, request.Password);
             if(isValidPassword)
             {
+                // add claims and generate accessToken
                 var claims = new List<Claim>
                 {
                     new Claim(ClaimTypes.NameIdentifier, existedUser.Id),
@@ -57,8 +56,17 @@ public class SigninCommandHandler : IRequestHandler<SigninCommand, IResult> {
                 var userRoles = await _userManager.GetRolesAsync(existedUser);
                 foreach (var userRole in userRoles)
                     claims.Add(new Claim(ClaimTypes.Role, userRole));
+                var accessToken = AuthHelpers.GenerateAccessToken(claims);
 
-                return Results.Ok(AuthHelpers.GenerateAccessToken(claims));
+                // generate and save refreshToken
+                var usedRefreshTokens = _dbService.GetQuery<RefreshToken>()
+                    .Select(r => r.Value)
+                    .ToList();
+                var refreshToken = AuthHelpers.CreateRefreshToken(existedUser.Id, usedRefreshTokens);
+                _dbService.Add<RefreshToken>(refreshToken);
+                _dbService.SaveChanges();
+
+                return Results.Ok(AuthHelpers.GetTokens(accessToken, refreshToken));
             }
         }
 

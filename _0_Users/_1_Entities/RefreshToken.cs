@@ -2,15 +2,16 @@ using Microsoft.EntityFrameworkCore;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
+using DB.Common;
 namespace Entities;
 
 [Table("RefreshTokens")]
 [Index(nameof(Value), IsUnique = true)]
-public class RefreshToken
+public class RefreshToken : Entity
 {
     [Key]
     [Column("Id", TypeName="uniqueidentifier")]
-    public Guid Id { get; set; }
+    public override Guid Id { get; set; }
 
     [Required]
     [Column("Value", TypeName="varchar(450)")]
@@ -41,33 +42,33 @@ public class RefreshToken
     public bool IsValid => !IsRevoked && !IsExpired;
 
     [NotMapped]
-    public DateTime CreatedAt { get; set; } = DateTime.Now;
+    public override DateTime CreatedAt { get; set; } = DateTime.Now;
     [NotMapped]
-    public string CreatedBy { get; set; } = "app_dev";
+    public override string CreatedBy { get; set; } = "app_dev";
     [NotMapped]
-    public DateTime? ModifiedAt { get; set; }
+    public override DateTime? ModifiedAt { get; set; }
     [NotMapped]
-    public string ModifiedBy { get; set; }
+    public override string ModifiedBy { get; set; }
 
     [NotMapped]
-    public bool IsDeleted { get; set; } = false;
+    public override bool IsDeleted { get; set; } = false;
     [NotMapped]
-    public DateTime? DeletedAt { get; set; }
+    public override DateTime? DeletedAt { get; set; }
     [NotMapped]
-    public string DeletedBy { get; set; }
+    public override string DeletedBy { get; set; }
     [NotMapped]
-    public DateTime? RestoredAt { get; set; }
+    public override DateTime? RestoredAt { get; set; }
     [NotMapped]
-    public string RestoredBy { get; set; }
+    public override string RestoredBy { get; set; }
 
     [NotMapped]
-    public bool IsActive { get; set; } = false;
+    public override bool IsActive { get; set; } = false;
     [NotMapped]
-    public DateTime? ActivatedAt { get; set; }
+    public override DateTime? ActivatedAt { get; set; }
     [NotMapped]
-    public string ActivatedBy { get; set; }
+    public override string ActivatedBy { get; set; }
     [NotMapped]
-    public DateTime? DisabledAt { get; set; }
+    public override DateTime? DisabledAt { get; set; }
     [NotMapped]
-    public string DisabledBy { get; set; }
+    public override string DisabledBy { get; set; }
 }
