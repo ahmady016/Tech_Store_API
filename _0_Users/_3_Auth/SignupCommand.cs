@@ -45,18 +45,21 @@ public class SignupCommandHandler : IRequestHandler<SignupCommand, IResult>
 {
     private readonly UserManager<User> _userManager;
     private readonly IEmailService _emailService;
+    private readonly IConfiguration _config;
     private readonly IMapper _mapper;
     private readonly ILogger<Product> _logger;
     private string _errorMessage;
     public SignupCommandHandler(
         UserManager<User> userManager,
         IEmailService emailService,
+        IConfiguration Configuration,
         IMapper mapper,
         ILogger<Product> logger
     )
     {
         _userManager = userManager;
         _emailService = emailService;
+        _config = Configuration;
         _mapper = mapper;
         _logger = logger;
     }
@@ -72,7 +75,7 @@ public class SignupCommandHandler : IRequestHandler<SignupCommand, IResult>
         {
             // generate email confirmation token and send confirmation email
             var confirmationToken = await _userManager.GenerateEmailConfirmationTokenAsync(newUser);
-            var confirmationUrl = new Uri($"api/confirm-email?userId={newUser.Id}&token={confirmationToken}");
+            var confirmationUrl = new Uri($"{_config["BaseUrl"]}/api/confirm-email?userId={newUser.Id}&token={confirmationToken}");
             await _emailService.SendAsync(
                 newUser.Email,
                 "Please Confirm Your Email",
