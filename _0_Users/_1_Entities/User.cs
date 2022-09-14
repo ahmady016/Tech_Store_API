@@ -30,4 +30,5 @@ public class User : IdentityUser
     public Gender Gender { get; set; }
 
     public virtual ICollection<UserRole> Roles { get; set; } = new HashSet<UserRole>();
+    public virtual ICollection<RefreshToken> RefreshTokens { get; set; } = new HashSet<RefreshToken>();
 }
