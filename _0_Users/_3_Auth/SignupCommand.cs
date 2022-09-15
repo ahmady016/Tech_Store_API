@@ -75,7 +75,7 @@ public class SignupCommandHandler : IRequestHandler<SignupCommand, IResult>
         {
             // generate email confirmation token and send confirmation email
             var confirmationToken = await _userManager.GenerateEmailConfirmationTokenAsync(newUser);
-            var confirmationUrl = new Uri($"{_config["BaseUrl"]}/api/confirm-email?userId={newUser.Id}&token={confirmationToken}");
+            var confirmationUrl = new Uri($"{_config["BaseUrl"]}/api/Auth/ConfirmEmail?userId={newUser.Id}&token={confirmationToken}");
             await _emailService.SendAsync(
                 newUser.Email,
                 "Please Confirm Your Email",
