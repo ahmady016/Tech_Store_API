@@ -80,6 +80,9 @@ builder.Services.Configure<MailOptions>(builder.Configuration.GetSection("SMTP")
 builder.Services.AddScoped<IDBService, DBService>();
 builder.Services.AddScoped<ICrudService, CrudService>();
 
+// Register AuthService
+builder.Services.AddScoped<IAuthService, AuthService>();
+
 // Register AutoMapper
 var assemblies = AppDomain.CurrentDomain.GetAssemblies();
 builder.Services.AddAutoMapper(assemblies);
