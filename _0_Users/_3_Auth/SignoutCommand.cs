@@ -10,7 +10,7 @@ namespace Auth.Commands;
 public class SignoutCommand : IRequest<IResult>
 {
     [Required(ErrorMessage = "UserId is required")]
-    [StringLength(450, MinimumLength = 10, ErrorMessage = "Email Must be between 10 and 450 characters")]
+    [StringLength(450, MinimumLength = 10, ErrorMessage = "UserId Must be between 10 and 450 characters")]
     public string UserId { get; set; }
 }
 
@@ -47,15 +47,15 @@ public class SignoutCommandHandler : IRequestHandler<SignoutCommand, IResult> {
         }
 
         bool foundTokens = _dbService.GetListAndDelete<RefreshToken>(token => token.UserId == command.UserId);
-        if (foundTokens)
+        if (foundTokens is false)
         {
-            _dbService.SaveChanges();
-            return Results.Ok(new { Message = "User is loggedOut successfully ..." });
+            _errorMessage = "User already loggedOut !!!";
+            _logger.LogError(_errorMessage);
+            return Results.Conflict(_errorMessage);
         }
 
-        _errorMessage = "User already loggedOut !!!";
-        _logger.LogError(_errorMessage);
-        return Results.Conflict(_errorMessage);
+        _dbService.SaveChanges();
+        return Results.Ok(new { Message = "User is loggedOut successfully ..." });
     }
 
 }
