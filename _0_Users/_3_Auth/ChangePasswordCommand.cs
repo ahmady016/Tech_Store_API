@@ -60,10 +60,9 @@ public class ChangePasswordCommandHandler : IRequestHandler<ChangePasswordComman
             return Results.BadRequest(_errorMessage);
         }
 
-        var validPassword = await _userManager.CheckPasswordAsync(existedUser, command.OldPassword);
-        if(validPassword is false)
+        if(command.NewPassword != command.ConfirmNewPassword)
         {
-            _errorMessage = $"Wrong Old Password !!!";
+            _errorMessage = $"ConfirmNewPassword and NewPassword does't match !!!";
             _logger.LogError(_errorMessage);
             return Results.BadRequest(_errorMessage);
         }
@@ -79,6 +78,7 @@ public class ChangePasswordCommandHandler : IRequestHandler<ChangePasswordComman
             _logger.LogError(_errorMessage);
             return Results.Conflict(new { Message = _errorMessage });
         }
+
         return Results.Ok(new { Message = "User Password Changed Successfully ..." });
     }
 
