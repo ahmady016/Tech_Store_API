@@ -71,26 +71,22 @@ public class SignupCommandHandler : IRequestHandler<SignupCommand, IResult>
     {
         var newUser = _mapper.Map<User>(command);
         var identityResult = await _userManager.CreateAsync(newUser, command.Password);
-        if(identityResult.Succeeded)
+        if(identityResult.Succeeded is false)
         {
-            // generate email confirmation token and send confirmation email
-            var confirmationToken = await _userManager.GenerateEmailConfirmationTokenAsync(newUser);
-            var confirmationUrl = new Uri($"{_config["BaseUrl"]}/api/Auth/ConfirmEmail?userId={newUser.Id}&token={confirmationToken}");
-            await _emailService.SendAsync(
-                newUser.Email,
-                "Please Confirm Your Email",
-                $"Please Click on this link to confirm your email: {confirmationUrl}"
-            );
-            return Results.Ok(new { Message = "User created successfully!" });
+            _errorMessage = String.Join(", ", identityResult.Errors.Select(error => error.Description).ToArray());
+            _logger.LogError(_errorMessage);
+            return Results.Conflict(new { Message = _errorMessage });
         }
 
-        _errorMessage = String.Join(", ",
-            identityResult.Errors
-                .Select(error => error.Description)
-                .ToArray()
+        // generate email confirmation token and send confirmation email
+        var confirmationToken = await _userManager.GenerateEmailConfirmationTokenAsync(newUser);
+        var confirmationUrl = new Uri($"{_config["BaseUrl"]}/api/Auth/ConfirmEmail?userId={newUser.Id}&token={confirmationToken}");
+        await _emailService.SendAsync(
+            newUser.Email,
+            "Please Confirm Your Email",
+            $"Please Click on this link to confirm your email: {confirmationUrl}"
         );
-        _logger.LogError(_errorMessage);
-        return Results.Conflict(new { Message = _errorMessage });
+        return Results.Ok(new { Message = "User created successfully!" });
     }
 
 }

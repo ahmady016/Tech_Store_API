@@ -37,8 +37,6 @@ public class ChangePasswordCommandHandler : IRequestHandler<ChangePasswordComman
     private readonly ILogger<Product> _logger;
     private string _errorMessage;
     public ChangePasswordCommandHandler(
-        IMapper mapper,
-        IEmailService emailService,
         UserManager<User> userManager,
         ILogger<Product> logger
     )
@@ -70,11 +68,7 @@ public class ChangePasswordCommandHandler : IRequestHandler<ChangePasswordComman
         var identityResult = await _userManager.ChangePasswordAsync(existedUser, command.OldPassword, command.NewPassword);
         if(identityResult.Succeeded is false)
         {
-            _errorMessage = String.Join(", ",
-                identityResult.Errors
-                    .Select(error => error.Description)
-                    .ToArray()
-            );
+            _errorMessage = String.Join(", ", identityResult.Errors.Select(error => error.Description).ToArray());
             _logger.LogError(_errorMessage);
             return Results.Conflict(new { Message = _errorMessage });
         }

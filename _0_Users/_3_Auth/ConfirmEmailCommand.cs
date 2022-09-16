@@ -19,25 +19,39 @@ public class ConfirmEmailCommand : IRequest<IResult>
 
 public class ConfirmEmailCommandHandler : IRequestHandler<ConfirmEmailCommand, IResult> {
     private readonly UserManager<User> _userManager;
-    public ConfirmEmailCommandHandler(UserManager<User> userManager)
+    private readonly ILogger<Product> _logger;
+    private string _errorMessage;
+    public ConfirmEmailCommandHandler(
+        UserManager<User> userManager,
+        ILogger<Product> logger
+    )
     {
         _userManager = userManager;
+        _logger = logger;
     }
 
     public async Task<IResult> Handle (
-        ConfirmEmailCommand request,
+        ConfirmEmailCommand command,
         CancellationToken cancellationToken
     )
     {
-        var existedUser = await _userManager.FindByIdAsync(request.UserId);
-        if(existedUser is not null)
+        var existedUser = await _userManager.FindByIdAsync(command.UserId);
+        if (existedUser is null)
         {
-            var identityResult = await _userManager.ConfirmEmailAsync(existedUser, request.Token);
-            if(identityResult.Succeeded)
-                return Results.Ok(new { Message = "Email is successfully confirmed, you can signin now" });
+            _errorMessage = $"User with Id: {command.UserId} not Found !!!";
+            _logger.LogError(_errorMessage);
+            return Results.BadRequest(_errorMessage);
         }
 
-        return Results.Unauthorized();
+        var identityResult = await _userManager.ConfirmEmailAsync(existedUser, command.Token);
+        if(identityResult.Succeeded is false)
+        {
+            _errorMessage = String.Join(", ", identityResult.Errors.Select(error => error.Description).ToArray());
+            _logger.LogError(_errorMessage);
+            return Results.Conflict(_errorMessage);
+        }
+
+        return Results.Ok(new { Message = "Email is successfully confirmed, you can signin now" });
     }
 
 }
