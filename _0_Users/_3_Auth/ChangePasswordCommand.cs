@@ -1,10 +1,8 @@
 using System.ComponentModel.DataAnnotations;
 using Microsoft.AspNetCore.Identity;
-using AutoMapper;
 using MediatR;
 
 using Entities;
-using Common;
 
 namespace Auth.Commands;
 
