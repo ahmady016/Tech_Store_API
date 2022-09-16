@@ -8,10 +8,12 @@ namespace Auth.Commands;
 
 public class ConfirmEmailCommand : IRequest<IResult>
 {
-    [Required]
+    [Required(ErrorMessage = "UserId is required")]
+    [StringLength(450, MinimumLength = 10, ErrorMessage = "Email Must be between 10 and 450 characters")]
     public string UserId { get; set; }
 
-    [Required]
+    [Required(ErrorMessage = "Token is required")]
+    [StringLength(450, MinimumLength = 10, ErrorMessage = "Token Must be between 10 and 450 characters")]
     public string Token { get; set; }
 }
 

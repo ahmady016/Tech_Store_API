@@ -2,38 +2,32 @@ using System.ComponentModel.DataAnnotations;
 using Microsoft.AspNetCore.Identity;
 using MediatR;
 
-using DB;
 using Entities;
 
 namespace Auth.Commands;
 
 public class SigninCommand : IRequest<IResult>
 {
-    [Required]
-    [StringLength(200)]
-    [EmailAddress]
+    [Required(ErrorMessage = "Email is required")]
+    [StringLength(100, MinimumLength = 10, ErrorMessage = "Email Must be between 10 and 100 characters")]
+    [EmailAddress(ErrorMessage = "Email Must be a valid email")]
     public string Email { get; set; }
 
-    [Required]
-    [StringLength(50)]
+    [DataType(DataType.Password)]
+    [Required(ErrorMessage = "Password is required")]
+    [StringLength(64, MinimumLength = 8, ErrorMessage = "Password Must be between 8 and 64 characters")]
     public string Password { get; set; }
 }
 
 public class SigninCommandHandler : IRequestHandler<SigninCommand, IResult> {
-    private readonly IConfiguration _config;
     private readonly UserManager<User> _userManager;
-    private readonly IDBService _dbService;
     private readonly IAuthService _authService;
     public SigninCommandHandler(
-        IConfiguration Configuration,
         UserManager<User> userManager,
-        IDBService dbService,
         IAuthService authService
     )
     {
-        _config = Configuration;
         _userManager = userManager;
-        _dbService = dbService;
         _authService = authService;
     }
 

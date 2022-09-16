@@ -8,23 +8,20 @@ namespace Auth.Commands;
 
 public class RefreshTokensCommand : IRequest<IResult>
 {
-    [Required]
-    [StringLength(450)]
+    [Required(ErrorMessage = "Token is required")]
+    [StringLength(450, MinimumLength = 10, ErrorMessage = "Token Must be between 10 and 450 characters")]
     public string Token { get; set; }
 }
 
 public class RefreshTokensCommandHandler : IRequestHandler<RefreshTokensCommand, IResult> {
-    private readonly IDBService _dbService;
     private readonly IAuthService _authService;
     private readonly ILogger<User> _logger;
     private string _errorMessage;
     public RefreshTokensCommandHandler(
-        IDBService dbService,
         IAuthService authService,
         ILogger<User> logger
     )
     {
-        _dbService = dbService;
         _authService = authService;
         _logger = logger;
     }
