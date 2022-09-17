@@ -25,8 +25,8 @@ public class AutoMapperProfile : Profile
         CreateMap<Brand, UpdateBrandCommand>().ReverseMap();
 
         CreateMap<Model, ModelDto>().ReverseMap();
-        CreateMap<Brand, AddModelCommand>().ReverseMap();
-        CreateMap<Brand, UpdateModelCommand>().ReverseMap();
+        CreateMap<Model, AddModelCommand>().ReverseMap();
+        CreateMap<Model, UpdateModelCommand>().ReverseMap();
 
     }
 }

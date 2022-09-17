@@ -19,14 +19,19 @@ public interface IEmailService
 public class EmailService : IEmailService
 {
     private readonly MailOptions _mailOptions;
+    private readonly SmtpClient _emailClient;
     public EmailService(IOptions<MailOptions> mailOptions)
     {
         _mailOptions = mailOptions.Value;
+        _emailClient = new SmtpClient()
+        {
+            Host = _mailOptions.Host,
+            Port = int.Parse(_mailOptions.Port),
+            Credentials = new NetworkCredential(_mailOptions.Email, _mailOptions.Password)
+        };
     }
     public async Task SendAsync(string to, string subject, string body)
     {
-        var emailClient = new SmtpClient(_mailOptions.Host, int.Parse(_mailOptions.Port));
-        emailClient.Credentials = new NetworkCredential(_mailOptions.Email, _mailOptions.Password);
-        await emailClient.SendMailAsync(new MailMessage(_mailOptions.Email, to, subject, body));
+        await _emailClient.SendMailAsync(new MailMessage(_mailOptions.Email, to, subject, body));
     }
 }
