@@ -15,7 +15,7 @@ public partial class TechStoreDB : DbContext
     }
 
     public DbSet<User> Users { get; set; }
-    public DbSet<IdentityRole> Roles { get; set; }
+    public DbSet<Role> Roles { get; set; }
     public DbSet<UserRole> UsersRoles { get; set; }
     public DbSet<RefreshToken> RefreshTokens { get; set; }
 
@@ -26,6 +26,7 @@ public partial class TechStoreDB : DbContext
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.ApplyConfiguration(new UserRoleConfig());
+
         modelBuilder.ApplyConfiguration(new ProductConfig());
         modelBuilder.ApplyConfiguration(new BrandConfig());
         modelBuilder.ApplyConfiguration(new ModelConfig());

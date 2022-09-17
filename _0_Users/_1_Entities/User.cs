@@ -29,6 +29,6 @@ public class User : IdentityUser
     [Column("Gender", TypeName="tinyint")]
     public Gender Gender { get; set; }
 
-    public virtual ICollection<UserRole> Roles { get; set; } = new HashSet<UserRole>();
+    public virtual ICollection<UserRole> UserRoles { get; set; } = new HashSet<UserRole>();
     public virtual ICollection<RefreshToken> RefreshTokens { get; set; } = new HashSet<RefreshToken>();
 }

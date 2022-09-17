@@ -32,7 +32,7 @@ var dbConnection = builder.Configuration.GetConnectionString("Default");
 builder.Services.AddDbContext<TechStoreDB>(options => options.UseSqlServer(dbConnection));
 
 // Register the Identity
-builder.Services.AddIdentity<User, IdentityRole>(options =>
+builder.Services.AddIdentity<User, Role>(options =>
   {
     options.User.RequireUniqueEmail = true;
     options.SignIn.RequireConfirmedEmail = true;

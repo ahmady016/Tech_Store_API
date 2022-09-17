@@ -19,7 +19,7 @@ public class UserRole
     public User User { get; set; }
 
     [ForeignKey("RoleId")]
-    public IdentityRole Role { get; set; }
+    public Role Role { get; set; }
 }
 
 public class UserRoleConfig : IEntityTypeConfiguration<UserRole>
