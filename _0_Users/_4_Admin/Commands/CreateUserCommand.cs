@@ -6,11 +6,11 @@ using Entities;
 using Common;
 using Dtos;
 
-namespace Auth.Commands;
+namespace Admin.Commands;
 
-public class SignupCommand : UserInput {}
+public class CreateUserCommand : UserInput {}
 
-public class SignupCommandHandler : IRequestHandler<SignupCommand, IResult>
+public class CreateUserCommandHandler : IRequestHandler<CreateUserCommand, IResult>
 {
     private readonly IMapper _mapper;
     private readonly IEmailService _emailService;
@@ -18,7 +18,7 @@ public class SignupCommandHandler : IRequestHandler<SignupCommand, IResult>
     private readonly IConfiguration _config;
     private readonly ILogger<Product> _logger;
     private string _errorMessage;
-    public SignupCommandHandler(
+        public CreateUserCommandHandler(
         IMapper mapper,
         IEmailService emailService,
         UserManager<User> userManager,
@@ -34,7 +34,7 @@ public class SignupCommandHandler : IRequestHandler<SignupCommand, IResult>
     }
 
     public async Task<IResult> Handle(
-        SignupCommand command,
+        CreateUserCommand command,
         CancellationToken cancellationToken
     )
     {
@@ -57,5 +57,4 @@ public class SignupCommandHandler : IRequestHandler<SignupCommand, IResult>
         );
         return Results.Ok(new { Message = "User created successfully and confirmation email was sent" });
     }
-
 }
