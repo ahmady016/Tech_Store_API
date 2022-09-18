@@ -9,8 +9,8 @@ namespace Admin.Commands;
 
 public class UpdateUserCommand : IRequest<IResult>
 {
-    [Required(ErrorMessage = "UserId is required")]
-    [StringLength(450, MinimumLength = 10, ErrorMessage = "UserId Must between 10 and 450 characters")]
+    [Required(ErrorMessage = "Id is required")]
+    [StringLength(450, MinimumLength = 10, ErrorMessage = "Id Must between 10 and 450 characters")]
     public string Id { get; set; }
 
     [Required(ErrorMessage = "FirstName is Required")]
