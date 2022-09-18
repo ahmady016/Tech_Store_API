@@ -37,7 +37,7 @@ public interface IAdminService
 
     void Attach<T>(T entity) where T : Entity;
     void SetState<T>(T entity, string state) where T : Entity;
-    int SaveChanges();
+    Task<int> SaveChangesAsync();
 }
 
 public class AdminService : IAdminService
@@ -133,19 +133,19 @@ public class AdminService : IAdminService
     #region Commands
     public void Add<T>(T item) where T : class
     {
-        _db.Entry(item).State = EntityState.Added;
+        _db.Set<T>().Add(item);
     }
     public void AddRange<T>(List<T> range) where T : class
     {
-        range.ForEach(item => _db.Entry(item).State = EntityState.Added);
+        _db.Set<T>().AddRange(range);
     }
     public void Update<T>(T item) where T : class
     {
-        _db.Entry<T>(item).State = EntityState.Modified;
+        _db.Set<T>().Update(item);
     }
     public void UpdateRange<T>(List<T> range) where T : class
     {
-        range.ForEach(item => _db.Entry<T>(item).State = EntityState.Modified);
+        _db.Set<T>().UpdateRange(range);
     }
     public void Remove<T>(T item) where T : class
     {
@@ -194,9 +194,9 @@ public class AdminService : IAdminService
             _ =>           EntityState.Unchanged
         };
     }
-    public int SaveChanges()
+    public async Task<int> SaveChangesAsync()
     {
-        return _db.SaveChanges();
+        return await _db.SaveChangesAsync();
     }
     #endregion
 

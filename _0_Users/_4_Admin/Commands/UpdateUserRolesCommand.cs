@@ -34,9 +34,12 @@ public class UpdateUserRolesCommandHandler : IRequestHandler<UpdateUserRolesComm
         CancellationToken cancellationToken
     )
     {
-        if(command.AddToRoles is null && command.RemoveFromRoles is null)
+        if(
+            (command.AddToRoles is null || command.AddToRoles.Count == 0) &&
+            (command.RemoveFromRoles is null || command.RemoveFromRoles.Count == 0)
+        )
         {
-            _errorMessage = $"Must specify atleast one of [AddToRoles, RemoveFromRoles]";
+            _errorMessage = $"Must specify at least one of [AddToRoles, RemoveFromRoles]";
             _logger.LogError(_errorMessage);
             return Results.BadRequest( new { Message = _errorMessage });
         }
@@ -49,19 +52,26 @@ public class UpdateUserRolesCommandHandler : IRequestHandler<UpdateUserRolesComm
             return Results.NotFound( new { Message = _errorMessage });
         }
 
-        var addToRolesResult = await _userManager.AddToRolesAsync(existedUser, command.AddToRoles);
-        if(addToRolesResult.Succeeded is false)
+        if(command.AddToRoles is not null && command.AddToRoles.Count > 0)
         {
-            _errorMessage = String.Join(", ", addToRolesResult.Errors.Select(error => error.Description).ToArray());
-            _logger.LogError(_errorMessage);
-            return Results.Conflict(new { Message = _errorMessage });
+            var addToRolesResult = await _userManager.AddToRolesAsync(existedUser, command.AddToRoles);
+            if(addToRolesResult.Succeeded is false)
+            {
+                _errorMessage = String.Join(", ", addToRolesResult.Errors.Select(error => error.Description).ToArray());
+                _logger.LogError(_errorMessage);
+                return Results.Conflict(new { Message = _errorMessage });
+            }
         }
-        var removeFromRolesResult = await _userManager.RemoveFromRolesAsync(existedUser, command.RemoveFromRoles);
-        if(removeFromRolesResult.Succeeded is false)
+
+        if(command.RemoveFromRoles is not null && command.RemoveFromRoles.Count > 0)
         {
-            _errorMessage = String.Join(", ", removeFromRolesResult.Errors.Select(error => error.Description).ToArray());
-            _logger.LogError(_errorMessage);
-            return Results.Conflict(new { Message = _errorMessage });
+            var removeFromRolesResult = await _userManager.RemoveFromRolesAsync(existedUser, command.RemoveFromRoles);
+            if(removeFromRolesResult.Succeeded is false)
+            {
+                _errorMessage = String.Join(", ", removeFromRolesResult.Errors.Select(error => error.Description).ToArray());
+                _logger.LogError(_errorMessage);
+                return Results.Conflict(new { Message = _errorMessage });
+            }
         }
 
         return Results.Ok(new { Message = $"User [with Id: {command.UserId}] Roles Updated successfully ..." });
