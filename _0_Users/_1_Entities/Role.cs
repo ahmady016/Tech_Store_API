@@ -6,5 +6,5 @@ namespace Entities;
 [Table("Roles")]
 public class Role : IdentityRole
 {
-    public virtual ICollection<UserRole> RoleUsers { get; set; } = new HashSet<UserRole>();
+    public virtual ICollection<UserRole> Users { get; set; } = new HashSet<UserRole>();
 }

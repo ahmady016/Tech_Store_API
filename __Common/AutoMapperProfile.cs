@@ -16,6 +16,9 @@ public class AutoMapperProfile : Profile
         CreateMap<User, UserDto>().ReverseMap();
         CreateMap<User, SignupCommand>().ReverseMap();
 
+        CreateMap<Role, RoleDto>().ReverseMap();
+        CreateMap<Role, RoleWithUsersDto>().ReverseMap();
+
         CreateMap<Product, ProductDto>().ReverseMap();
         CreateMap<Product, AddProductCommand>().ReverseMap();
         CreateMap<Product, UpdateProductCommand>().ReverseMap();

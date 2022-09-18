@@ -13,4 +13,5 @@ public class UserDto
     public string EmailConfirmed { get; set; }
     public string PhoneNumber { get; set; }
     public string PhoneNumberConfirmed { get; set; }
+    public List<RoleDto> Roles { get; set; }
 }
