@@ -4,8 +4,6 @@ using AutoMapper;
 using MediatR;
 
 using Entities;
-using Common;
-using Dtos;
 
 namespace Admin.Commands;
 

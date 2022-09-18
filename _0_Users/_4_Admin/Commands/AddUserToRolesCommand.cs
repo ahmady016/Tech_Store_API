@@ -6,19 +6,22 @@ using Entities;
 
 namespace Admin.Commands;
 
-public class DeleteUserCommand : IRequest<IResult>
+public class AddUserToRolesCommand : IRequest<IResult>
 {
     [Required(ErrorMessage = "UserId is required")]
     [StringLength(450, MinimumLength = 10, ErrorMessage = "UserId Must between 10 and 450 characters")]
     public string UserId { get; set; }
+
+    [Required(ErrorMessage = "Roles is required")]
+    public List<string> Roles { get; set; }
 }
 
-public class DeleteUserCommandHandler : IRequestHandler<DeleteUserCommand, IResult>
+public class AddUserToRolesCommandHandler : IRequestHandler<AddUserToRolesCommand, IResult>
 {
     private readonly UserManager<User> _userManager;
     private readonly ILogger<User> _logger;
     private string _errorMessage;
-    public DeleteUserCommandHandler (
+    public AddUserToRolesCommandHandler (
         UserManager<User> userManager,
         ILogger<User> logger
     )
@@ -28,7 +31,7 @@ public class DeleteUserCommandHandler : IRequestHandler<DeleteUserCommand, IResu
     }
 
     public async Task<IResult> Handle(
-        DeleteUserCommand command,
+        AddUserToRolesCommand command,
         CancellationToken cancellationToken
     )
     {
@@ -40,7 +43,7 @@ public class DeleteUserCommandHandler : IRequestHandler<DeleteUserCommand, IResu
             return Results.NotFound( new { Message = _errorMessage });
         }
 
-        var identityResult = await _userManager.DeleteAsync(existedUser);
+        var identityResult = await _userManager.AddToRolesAsync(existedUser, command.Roles);
         if(identityResult.Succeeded is false)
         {
             _errorMessage = String.Join(", ", identityResult.Errors.Select(error => error.Description).ToArray());
@@ -48,7 +51,7 @@ public class DeleteUserCommandHandler : IRequestHandler<DeleteUserCommand, IResu
             return Results.Conflict(new { Message = _errorMessage });
         }
 
-        return Results.Ok(new { Message = $"User with Id: {command.UserId} Deleted successfully ..." });
+        return Results.Ok(new { Message = $"User with Id: {command.UserId} was added to The Given Roles successfully ..." });
     }
 
 }
