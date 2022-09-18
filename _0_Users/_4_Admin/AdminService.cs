@@ -111,10 +111,10 @@ public class AdminService : IAdminService
         var count = await query.CountAsync();
         return new PageResult<T>
         {
-            PageItems = await query
+            PageItems = query
                 .Skip(pageSize * (pageNumber - 1))
                 .Take(pageSize)
-                .ToListAsync(),
+                .ToList(),
             TotalItems = count,
             TotalPages = (int) Math.Ceiling((decimal) count / pageSize),
         };
