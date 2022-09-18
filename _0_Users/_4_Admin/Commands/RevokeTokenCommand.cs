@@ -3,8 +3,9 @@ using MediatR;
 
 using DB;
 using Entities;
+using Auth;
 
-namespace Auth.Commands;
+namespace Admin.Commands;
 
 public class RevokeTokenCommand : IRequest<IResult>
 {
