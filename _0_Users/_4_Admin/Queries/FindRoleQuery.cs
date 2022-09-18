@@ -7,6 +7,7 @@ using Entities;
 using Dtos;
 
 namespace Admin.Queries;
+
 public class FindRoleQuery : IRequest<IResult>
 {
     [Required(ErrorMessage = "RoleId is required")]
@@ -49,13 +50,9 @@ public class FindRoleQueryHandler : IRequestHandler<FindRoleQuery, IResult>
             .Where(e => e.RoleId == request.RoleId)
             .ToListAsync();
 
-        return Results.Ok(
-            new RoleWithUsersDto() {
-                Id = existedRole.Id,
-                Name = existedRole.Name,
-                Users = _mapper.Map<List<UserDto>>(rolesAndUsers.Select(e => e.User))
-            }
-        );
+        var role = _mapper.Map<RoleDto>(existedRole);
+        role.Users = _mapper.Map<List<UserDto>>(rolesAndUsers.Select(e => e.User));
+        return Results.Ok(role);
     }
 
 }
