@@ -1,5 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Identity;
 using AutoMapper;
 using MediatR;
 
@@ -17,16 +18,19 @@ public class FindUserQuery : IRequest<IResult>
 
 public class FindUserQueryHandler : IRequestHandler<FindUserQuery, IResult>
 {
+    private readonly UserManager<User> _userManager;
     private readonly IAdminService _adminService;
     private readonly IMapper _mapper;
     private readonly ILogger<User> _logger;
     private string _errorMessage;
     public FindUserQueryHandler (
+        UserManager<User> userManager,
         IAdminService adminService,
         IMapper mapper,
         ILogger<User> logger
     )
     {
+        _userManager = userManager;
         _adminService = adminService;
         _mapper = mapper;
         _logger = logger;
@@ -37,7 +41,7 @@ public class FindUserQueryHandler : IRequestHandler<FindUserQuery, IResult>
         CancellationToken cancellationToken
     )
     {
-        var existedUser = await _adminService.FindAsync<User>(request.UserId);
+        var existedUser = await _userManager.FindByIdAsync(request.UserId);
         if(existedUser is null)
         {
             _errorMessage = $"User Record with Id: {request.UserId} Not Found";
