@@ -10,6 +10,7 @@ using DB;
 using Common;
 using Entities;
 using Auth;
+using Admin;
 
 // Create the Web Server Builder
 var builder = WebApplication.CreateBuilder(args);
@@ -80,8 +81,15 @@ builder.Services.Configure<MailOptions>(builder.Configuration.GetSection("SMTP")
 builder.Services.AddScoped<IDBService, DBService>();
 builder.Services.AddScoped<ICrudService, CrudService>();
 
+// Register DBQuery and DBCommand Services
+builder.Services.AddScoped<IDBQueryService, DBQueryService>();
+builder.Services.AddScoped<IDBCommandService, DBCommandService>();
+
 // Register AuthService
 builder.Services.AddScoped<IAuthService, AuthService>();
+
+// Register AdminService
+builder.Services.AddScoped<IAdminService, AdminService>();
 
 // Register AutoMapper
 var assemblies = AppDomain.CurrentDomain.GetAssemblies();
