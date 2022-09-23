@@ -7,6 +7,32 @@ using DB.Common;
 
 namespace DB;
 
+public interface ICrudService
+{
+    T GetById<T>(Guid id) where T : Entity;
+    List<T> GetByIds<T>(List<Guid> ids) where T : Entity;
+    List<TDto> List<T, TDto>(string type = "existed") where T : Entity;
+    PageResult<TDto> ListPage<T, TDto>(string type = "existed", int pageSize = 10, int pageNumber = 1) where T : Entity;
+
+    IResult Query<T, TDto>(string where, string select, string orderBy) where T : Entity;
+    IResult QueryPage<T, TDto>(string where, string select, string orderBy, int pageSize = 10, int pageNumber = 1) where T : Entity;
+
+    TDto Find<T, TDto>(Guid id) where T : Entity;
+    List<TDto> FindList<T, TDto>(string ids) where T : Entity;
+
+    TDto Add<T, TDto, TCreateInput>(TCreateInput input) where T : Entity;
+    List<TDto> AddMany<T, TDto, TCreateInput>(List<TCreateInput> inputs) where T : Entity;
+
+    TDto Update<T, TDto, TUpdate, TCommand>(TUpdate input, T oldItem = null) where T : Entity where TUpdate : UpdateCommand<TCommand> where TCommand : class;
+    List<TDto> UpdateMany<T, TDto, TUpdate, TCommand>(List<TUpdate> inputs, List<T> oldItems = null) where T : Entity where TUpdate : UpdateCommand<TCommand> where TCommand : class;
+
+    bool Delete<T>(Guid id) where T : Entity;
+    bool Restore<T>(Guid id) where T : Entity;
+
+    bool Activate<T>(Guid id) where T : Entity;
+    bool Disable<T>(Guid id) where T : Entity;
+}
+
 public class CrudService : ICrudService
 {
     private readonly IDBService _dbService;
