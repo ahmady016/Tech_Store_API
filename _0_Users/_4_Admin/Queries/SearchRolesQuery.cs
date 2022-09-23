@@ -3,6 +3,7 @@ using AutoMapper;
 using MediatR;
 
 using Common;
+using DB;
 using DB.Common;
 using Entities;
 using Dtos;
@@ -13,17 +14,17 @@ public class SearchRolesQuery : SearchQuery {}
 
 public class SearchRolesQueryHandler : IRequestHandler<SearchRolesQuery, IResult>
 {
-    private readonly IAdminService _adminService;
+    private readonly IDBQueryService _dbQueryService;
     private readonly IMapper _mapper;
     private readonly ILogger<Role> _logger;
     private string _errorMessage;
     public SearchRolesQueryHandler (
-        IAdminService adminService,
+        IDBQueryService dbQueryService,
         IMapper mapper,
         ILogger<Role> logger
     )
     {
-        _adminService = adminService;
+        _dbQueryService = dbQueryService;
         _mapper = mapper;
         _logger = logger;
     }
@@ -40,7 +41,7 @@ public class SearchRolesQueryHandler : IRequestHandler<SearchRolesQuery, IResult
             return Results.BadRequest(new { Message = _errorMessage });
         }
 
-        var query = _adminService.GetQuery<Role>();
+        var query = _dbQueryService.GetQuery<Role>();
         if (request.Where is not null)
             query = query.Where(request.Where);
         if (request.OrderBy is not null)
@@ -51,7 +52,7 @@ public class SearchRolesQueryHandler : IRequestHandler<SearchRolesQuery, IResult
         IResult result;
         if (request.PageSize is not null && request.PageSize is not null)
         {
-            var page = await _adminService.GetPageAsync<Role>(query, (int)request.PageSize, (int)request.PageNumber);
+            var page = await _dbQueryService.GetPageAsync<Role>(query, (int)request.PageSize, (int)request.PageNumber);
             result = request.Select is not null
                 ? Results.Ok(page)
                 : Results.Ok(new PageResult<RoleDto>()
@@ -63,10 +64,9 @@ public class SearchRolesQueryHandler : IRequestHandler<SearchRolesQuery, IResult
         }
         else
         {
-            var list = await query.ToDynamicListAsync();
             result = request.Select is not null
-                ? Results.Ok(list)
-                : Results.Ok(_mapper.Map<List<RoleDto>>(list));
+                ? Results.Ok(await query.ToDynamicListAsync())
+                : Results.Ok(_mapper.Map<List<UserDto>>(query.ToList()));
         }
 
         return result;

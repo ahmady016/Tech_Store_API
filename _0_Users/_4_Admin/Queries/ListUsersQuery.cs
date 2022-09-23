@@ -3,6 +3,7 @@ using AutoMapper;
 
 using Common;
 using DB.Common;
+using DB;
 using Entities;
 using Dtos;
 
@@ -11,14 +12,14 @@ namespace Admin.Queries;
 public class ListUsersQuery : ListQuery {}
 
 public class ListUsersQueryHandler : IRequestHandler<ListUsersQuery, IResult> {
-    private readonly IAdminService _adminService;
+    private readonly IDBQueryService _dbQueryService;
     private readonly IMapper _mapper;
     public ListUsersQueryHandler (
-        IAdminService adminService,
+        IDBQueryService dbQueryService,
         IMapper mapper
     )
     {
-        _adminService = adminService;
+        _dbQueryService = dbQueryService;
         _mapper = mapper;
     }
 
@@ -30,7 +31,11 @@ public class ListUsersQueryHandler : IRequestHandler<ListUsersQuery, IResult> {
         IResult result;
         if (request.PageSize is not null && request.PageSize is not null)
         {
-            var page = await _adminService.GetPageAsync<User>(_adminService.GetQuery<User>(), (int)request.PageSize, (int)request.PageNumber);
+            var page = await _dbQueryService.GetPageAsync<User>(
+                _dbQueryService.GetQuery<User>(),
+                (int)request.PageSize,
+                (int)request.PageNumber
+            );
             result = Results.Ok(new PageResult<UserDto>()
             {
                 PageItems = _mapper.Map<List<UserDto>>(page.PageItems),
@@ -40,7 +45,7 @@ public class ListUsersQueryHandler : IRequestHandler<ListUsersQuery, IResult> {
         }
         else
         {
-            var list = _adminService.GetAllAsync<User>();
+            var list = _dbQueryService.GetAllAsync<User>();
             result = Results.Ok(_mapper.Map<List<UserDto>>(list));
         }
 

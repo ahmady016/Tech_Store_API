@@ -2,6 +2,7 @@ using System.ComponentModel.DataAnnotations;
 using Microsoft.AspNetCore.Identity;
 using MediatR;
 
+using DB;
 using Entities;
 
 namespace Admin.Commands;
@@ -18,17 +19,17 @@ public class UpdateRoleUsersCommand : IRequest<IResult>
 public class UpdateRoleUsersCommandHandler : IRequestHandler<UpdateRoleUsersCommand, IResult>
 {
     private readonly RoleManager<Role> _roleManager;
-    private readonly IAdminService _adminService;
+    private readonly IDBCommandService _dbCommandService;
     private readonly ILogger<User> _logger;
     private string _errorMessage;
     public UpdateRoleUsersCommandHandler (
         RoleManager<Role> roleManager,
-        IAdminService adminService,
+        IDBCommandService dbCommandService,
         ILogger<User> logger
     )
     {
         _roleManager = roleManager;
-        _adminService = adminService;
+        _dbCommandService = dbCommandService;
         _logger = logger;
     }
 
@@ -60,8 +61,8 @@ public class UpdateRoleUsersCommandHandler : IRequestHandler<UpdateRoleUsersComm
             var usersRolesToAdd = command.UsersIdsToAdd
                 .Select(userId => new UserRole() { UserId = userId, RoleId = existedRole.Id })
                 .ToList();
-            _adminService.AddRange<UserRole>(usersRolesToAdd);
-            await _adminService.SaveChangesAsync();
+            _dbCommandService.AddRange<UserRole>(usersRolesToAdd);
+            await _dbCommandService.SaveChangesAsync();
         }
 
         if(command.UsersIdsToRemove is not null && command.UsersIdsToRemove.Count > 0)
@@ -69,8 +70,8 @@ public class UpdateRoleUsersCommandHandler : IRequestHandler<UpdateRoleUsersComm
             var usersRolesToRemove = command.UsersIdsToRemove
                 .Select(userId => new UserRole() { UserId = userId, RoleId = existedRole.Id })
                 .ToList();
-            _adminService.RemoveRange<UserRole>(usersRolesToRemove);
-            await _adminService.SaveChangesAsync();
+            _dbCommandService.RemoveRange<UserRole>(usersRolesToRemove);
+            await _dbCommandService.SaveChangesAsync();
         }
 
         return Results.Ok(new { Message = $"Role [with Id: {command.RoleId}] Users was Updated successfully ..." });

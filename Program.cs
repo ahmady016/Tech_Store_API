@@ -77,6 +77,9 @@ builder.Services.AddAuthorization();
 builder.Services.AddScoped<IEmailService, EmailService>();
 builder.Services.Configure<MailOptions>(builder.Configuration.GetSection("SMTP"));
 
+// Register AuthService
+builder.Services.AddScoped<IAuthService, AuthService>();
+
 // Register DB and CrudService
 builder.Services.AddScoped<IDBService, DBService>();
 builder.Services.AddScoped<ICrudService, CrudService>();
@@ -84,12 +87,6 @@ builder.Services.AddScoped<ICrudService, CrudService>();
 // Register DBQuery and DBCommand Services
 builder.Services.AddScoped<IDBQueryService, DBQueryService>();
 builder.Services.AddScoped<IDBCommandService, DBCommandService>();
-
-// Register AuthService
-builder.Services.AddScoped<IAuthService, AuthService>();
-
-// Register AdminService
-builder.Services.AddScoped<IAdminService, AdminService>();
 
 // Register AutoMapper
 var assemblies = AppDomain.CurrentDomain.GetAssemblies();

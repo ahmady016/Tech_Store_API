@@ -2,6 +2,7 @@ using System.ComponentModel.DataAnnotations;
 using Microsoft.AspNetCore.Identity;
 using MediatR;
 
+using DB;
 using Entities;
 
 namespace Admin.Commands;
@@ -19,17 +20,17 @@ public class UnassignRoleFromUsersCommand : IRequest<IResult>
 public class UnassignRoleFromUsersCommandHandler : IRequestHandler<UnassignRoleFromUsersCommand, IResult>
 {
     private readonly RoleManager<Role> _roleManager;
-    private readonly IAdminService _adminService;
+    private readonly IDBCommandService _dbCommandService;
     private readonly ILogger<User> _logger;
     private string _errorMessage;
     public UnassignRoleFromUsersCommandHandler (
         RoleManager<Role> roleManager,
-        IAdminService adminService,
+        IDBCommandService dbCommandService,
         ILogger<User> logger
     )
     {
         _roleManager = roleManager;
-        _adminService = adminService;
+        _dbCommandService = dbCommandService;
         _logger = logger;
     }
 
@@ -49,8 +50,8 @@ public class UnassignRoleFromUsersCommandHandler : IRequestHandler<UnassignRoleF
         var usersRoles = command.UsersIds
             .Select(userId => new UserRole() { UserId = userId, RoleId = existedRole.Id })
             .ToList();
-        _adminService.RemoveRange<UserRole>(usersRoles);
-        await _adminService.SaveChangesAsync();
+        _dbCommandService.RemoveRange<UserRole>(usersRoles);
+        await _dbCommandService.SaveChangesAsync();
 
         return Results.Ok(new { Message = $"Role with Id: {command.RoleId} was Unassigned from The Given Users successfully ..." });
     }

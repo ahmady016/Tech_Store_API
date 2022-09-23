@@ -2,6 +2,7 @@ using System.ComponentModel.DataAnnotations;
 using Microsoft.AspNetCore.Identity;
 using MediatR;
 
+using DB;
 using Entities;
 
 namespace Admin.Commands;
@@ -19,17 +20,17 @@ public class AssignRoleToUsersCommand : IRequest<IResult>
 public class AssignRoleToUsersCommandHandler : IRequestHandler<AssignRoleToUsersCommand, IResult>
 {
     private readonly RoleManager<Role> _roleManager;
-    private readonly IAdminService _adminService;
+    private readonly IDBCommandService _dbCommandService;
     private readonly ILogger<User> _logger;
     private string _errorMessage;
     public AssignRoleToUsersCommandHandler (
         RoleManager<Role> roleManager,
-        IAdminService adminService,
+        IDBCommandService dbCommandService,
         ILogger<User> logger
     )
     {
         _roleManager = roleManager;
-        _adminService = adminService;
+        _dbCommandService = dbCommandService;
         _logger = logger;
     }
 
@@ -49,8 +50,8 @@ public class AssignRoleToUsersCommandHandler : IRequestHandler<AssignRoleToUsers
         var usersRoles = command.UsersIds
             .Select(userId => new UserRole() { UserId = userId, RoleId = existedRole.Id })
             .ToList();
-        _adminService.AddRange<UserRole>(usersRoles);
-        await _adminService.SaveChangesAsync();
+        _dbCommandService.AddRange<UserRole>(usersRoles);
+        await _dbCommandService.SaveChangesAsync();
 
         return Results.Ok(new { Message = $"Role with Id: {command.RoleId} was Assigned to The Given Users successfully ..." });
     }

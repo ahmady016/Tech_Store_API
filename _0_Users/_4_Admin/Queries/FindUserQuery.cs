@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Identity;
 using AutoMapper;
 using MediatR;
 
+using DB;
 using Entities;
 using Dtos;
 
@@ -19,19 +20,19 @@ public class FindUserQuery : IRequest<IResult>
 public class FindUserQueryHandler : IRequestHandler<FindUserQuery, IResult>
 {
     private readonly UserManager<User> _userManager;
-    private readonly IAdminService _adminService;
+    private readonly IDBQueryService _dbQueryService;
     private readonly IMapper _mapper;
     private readonly ILogger<User> _logger;
     private string _errorMessage;
     public FindUserQueryHandler (
         UserManager<User> userManager,
-        IAdminService adminService,
+        IDBQueryService dbQueryService,
         IMapper mapper,
         ILogger<User> logger
     )
     {
         _userManager = userManager;
-        _adminService = adminService;
+        _dbQueryService = dbQueryService;
         _mapper = mapper;
         _logger = logger;
     }
@@ -49,7 +50,7 @@ public class FindUserQueryHandler : IRequestHandler<FindUserQuery, IResult>
             return Results.NotFound( new { Message = _errorMessage });
         }
 
-        var usersAndRoles = await _adminService.GetQuery<UserRole>()
+        var usersAndRoles = await _dbQueryService.GetQuery<UserRole>()
             .Include(e => e.Role)
             .Where(e => e.UserId == request.UserId)
             .ToListAsync();

@@ -2,6 +2,7 @@ using MediatR;
 using AutoMapper;
 
 using Common;
+using DB;
 using DB.Common;
 using Entities;
 using Dtos;
@@ -11,14 +12,14 @@ namespace Admin.Queries;
 public class ListRolesQuery : ListQuery {}
 
 public class ListRolesQueryHandler : IRequestHandler<ListRolesQuery, IResult> {
-    private readonly IAdminService _adminService;
+    private readonly IDBQueryService _dbQueryService;
     private readonly IMapper _mapper;
     public ListRolesQueryHandler (
-        IAdminService adminService,
+        IDBQueryService dbQueryService,
         IMapper mapper
     )
     {
-        _adminService = adminService;
+        _dbQueryService = dbQueryService;
         _mapper = mapper;
     }
 
@@ -30,7 +31,11 @@ public class ListRolesQueryHandler : IRequestHandler<ListRolesQuery, IResult> {
         IResult result;
         if (request.PageSize is not null && request.PageSize is not null)
         {
-            var page = await _adminService.GetPageAsync<Role>(_adminService.GetQuery<Role>(), (int)request.PageSize, (int)request.PageNumber);
+            var page = await _dbQueryService.GetPageAsync<Role>(
+                _dbQueryService.GetQuery<Role>(),
+                (int)request.PageSize,
+                (int)request.PageNumber
+            );
             result = Results.Ok(new PageResult<RoleDto>()
             {
                 PageItems = _mapper.Map<List<RoleDto>>(page.PageItems),
@@ -40,7 +45,7 @@ public class ListRolesQueryHandler : IRequestHandler<ListRolesQuery, IResult> {
         }
         else
         {
-            var list = _adminService.GetAllAsync<Role>();
+            var list = _dbQueryService.GetAllAsync<Role>();
             result = Results.Ok(_mapper.Map<List<RoleDto>>(list));
         }
 
