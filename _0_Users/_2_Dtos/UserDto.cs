@@ -14,4 +14,7 @@ public class UserDto
     public string PhoneNumber { get; set; }
     public string PhoneNumberConfirmed { get; set; }
     public List<RoleDto> Roles { get; set; }
+    public List<PurchaseDto> Purchases { get; set; }
+    public List<SaleDto> EmployeeSales { get; set; }
+    public List<SaleDto> CustomerSales { get; set; }
 }

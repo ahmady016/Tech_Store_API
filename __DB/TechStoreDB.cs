@@ -23,6 +23,12 @@ public partial class TechStoreDB : DbContext
     public DbSet<Brand> Brands { get; set; }
     public DbSet<Model> Models { get; set; }
 
+    public DbSet<Purchase> Purchases { get; set; }
+    public DbSet<PurchaseItem> PurchasesItems { get; set; }
+    public DbSet<Sale> Sales { get; set; }
+    public DbSet<SaleItem> SalesItems { get; set; }
+    public DbSet<Stock> Stocks { get; set; }
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.ApplyConfiguration(new UserRoleConfig());
@@ -30,6 +36,12 @@ public partial class TechStoreDB : DbContext
         modelBuilder.ApplyConfiguration(new ProductConfig());
         modelBuilder.ApplyConfiguration(new BrandConfig());
         modelBuilder.ApplyConfiguration(new ModelConfig());
+
+        modelBuilder.ApplyConfiguration(new PurchaseConfig());
+        modelBuilder.ApplyConfiguration(new PurchaseItemConfig());
+        modelBuilder.ApplyConfiguration(new SaleConfig());
+        modelBuilder.ApplyConfiguration(new SaleItemConfig());
+        modelBuilder.ApplyConfiguration(new StockConfig());
 
         OnModelCreatingPartial(modelBuilder);
     }

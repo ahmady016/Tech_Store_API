@@ -17,6 +17,9 @@ public class Model : Entity
 
     public Product Product { get; set; }
     public Brand Brand { get; set; }
+    public Stock Stock { get; set; }
+    public virtual ICollection<PurchaseItem> PurchasesItems { get; set; } = new HashSet<PurchaseItem>();
+    public virtual ICollection<SaleItem> SalesItems { get; set; } = new HashSet<SaleItem>();
 }
 
 public class ModelConfig : EntityConfig<Model>
@@ -63,25 +66,29 @@ public class ModelConfig : EntityConfig<Model>
             .HasColumnName("product_id")
             .HasColumnType("uniqueidentifier");
 
-        entity.HasIndex(e => e.ProductId, "product_id_fk_index");
+        entity.Property(e => e.BrandId)
+            .HasColumnName("brand_id")
+            .HasColumnType("uniqueidentifier");
 
+        entity.HasIndex(e => e.ProductId, "product_id_fk_index");
         entity.HasOne(model => model.Product)
             .WithMany(product => product.Models)
             .HasForeignKey(model => model.ProductId)
             .OnDelete(DeleteBehavior.Restrict)
             .HasConstraintName("products_models_fk");
 
-        entity.Property(e => e.BrandId)
-            .HasColumnName("brand_id")
-            .HasColumnType("uniqueidentifier");
-
         entity.HasIndex(e => e.BrandId, "brand_id_fk_index");
-
         entity.HasOne(model => model.Brand)
             .WithMany(brand => brand.Models)
             .HasForeignKey(model => model.BrandId)
             .OnDelete(DeleteBehavior.Restrict)
             .HasConstraintName("brands_models_fk");
+
+        entity.HasOne(model => model.Stock)
+            .WithOne(stock => stock.Model)
+            .HasForeignKey<Stock>(stock => stock.ModelId)
+            .OnDelete(DeleteBehavior.Restrict)
+            .HasConstraintName("models_stocks_fk");
 
     }
 }

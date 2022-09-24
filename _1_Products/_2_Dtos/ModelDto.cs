@@ -11,4 +11,8 @@ public class ModelDto
     public Category Category { get; set; }
     public Guid ProductId { get; set; }
     public Guid BrandId { get; set; }
+
+    public StockDto Stock { get; set; }
+    public List<PurchaseItemDto> PurchasesItems { get; set; }
+    public List<SaleItemDto> SalesItems { get; set; }
 }

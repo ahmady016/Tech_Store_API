@@ -31,4 +31,8 @@ public class User : IdentityUser
 
     public virtual ICollection<UserRole> Roles { get; set; } = new HashSet<UserRole>();
     public virtual ICollection<RefreshToken> RefreshTokens { get; set; } = new HashSet<RefreshToken>();
+
+    public virtual ICollection<Purchase> Purchases { get; set; } = new HashSet<Purchase>();
+    public virtual ICollection<Sale> EmployeeSales { get; set; } = new HashSet<Sale>();
+    public virtual ICollection<Sale> CustomerSales { get; set; } = new HashSet<Sale>();
 }

@@ -33,5 +33,13 @@ public class AutoMapperProfile : Profile
         CreateMap<Model, AddModelCommand>().ReverseMap();
         CreateMap<Model, UpdateModelCommand>().ReverseMap();
 
+        CreateMap<Purchase, PurchaseDto>().ReverseMap();
+        CreateMap<PurchaseItem, PurchaseItemDto>().ReverseMap();
+
+        CreateMap<Sale, SaleDto>().ReverseMap();
+        CreateMap<SaleItem, SaleItemDto>().ReverseMap();
+
+        CreateMap<Stock, StockDto>().ReverseMap();
+
     }
 }
