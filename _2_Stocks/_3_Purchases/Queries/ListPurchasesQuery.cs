@@ -3,6 +3,7 @@ using MediatR;
 
 using DB;
 using Common;
+using DB.Common;
 using Entities;
 using Dtos;
 
@@ -36,12 +37,17 @@ public class ListPurchasesQueryHandler : IRequestHandler<ListPurchasesQuery, IRe
                 (int)query.PageSize,
                 (int)query.PageNumber
             );
-            result = Results.Ok(page);
+            result = Results.Ok(new PageResult<PurchaseDto>()
+            {
+                PageItems = _mapper.Map<List<PurchaseDto>>(page.PageItems),
+                TotalItems = page.TotalItems,
+                TotalPages = page.TotalPages
+            });
         }
         else
         {
             var list = await _dbQueryService.GetAllAsync<Purchase>();
-            result = Results.Ok(list);
+            result = Results.Ok(_mapper.Map<List<PurchaseDto>>(list));
         }
         return result;
     }

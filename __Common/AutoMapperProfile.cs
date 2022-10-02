@@ -35,6 +35,11 @@ public class AutoMapperProfile : Profile
 
         CreateMap<Purchase, PurchaseDto>().ReverseMap();
         CreateMap<PurchaseItem, PurchaseItemDto>().ReverseMap();
+        CreateMap<PurchaseItem, DetailedPurchaseItemDto>()
+            .ForMember(dest => dest.EmployeeId, action => action.MapFrom(src => src.Purchase != null ? src.Purchase.EmployeeId : String.Empty))
+            .ForMember(dest => dest.PurchasedAt, action => action.MapFrom(src => src.Purchase != null ? src.Purchase.PurchasedAt : DateTime.MinValue))
+            .ForMember(dest => dest.ModelTitle, action => action.MapFrom(src => src.Model != null ? src.Model.Title : String.Empty))
+            .ReverseMap();
 
         CreateMap<Sale, SaleDto>().ReverseMap();
         CreateMap<SaleItem, SaleItemDto>().ReverseMap();

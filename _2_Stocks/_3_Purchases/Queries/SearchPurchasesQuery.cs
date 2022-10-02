@@ -66,7 +66,7 @@ public class SearchPurchasesQueryHandler : IRequestHandler<SearchPurchasesQuery,
         {
             result = request.Select is not null
                 ? Results.Ok(await query.ToDynamicListAsync())
-                : Results.Ok(_mapper.Map<List<UserDto>>(query.ToList()));
+                : Results.Ok(_mapper.Map<List<PurchaseDto>>(query.ToList()));
         }
 
         return result;
