@@ -8,6 +8,7 @@ namespace DB;
 public interface IDBQueryService
 {
     Task<T> FindAsync<T>(string id) where T : class;
+    Task<T> FindAsync<T>(Guid id) where T : class;
     Task<T> GetOneAsync<T>(Expression<Func<T, bool>> where) where T : class;
     Task<T> GetOneAsync<T>(Expression<Func<T, bool>> where, params Expression<Func<T, object>>[] includes) where T : class;
     Task<T> GetOneAsync<T>(Expression<Func<T, bool>> where, params string[] includes) where T : class;
@@ -34,6 +35,13 @@ public class DBQueryService : IDBQueryService
     }
 
     public async Task<T> FindAsync<T>(string id) where T : class
+    {
+        var entity = await _db.Set<T>().FindAsync(id);
+        if(entity is not null)
+            _db.Entry(entity).State = EntityState.Detached;
+        return entity;
+    }
+    public async Task<T> FindAsync<T>(Guid id) where T : class
     {
         var entity = await _db.Set<T>().FindAsync(id);
         if(entity is not null)

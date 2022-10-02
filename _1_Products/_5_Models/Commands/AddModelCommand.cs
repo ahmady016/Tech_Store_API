@@ -50,16 +50,19 @@ public class AddModelCommandHandler : IRequestHandler<AddModelCommand, IResult>
 {
     private readonly IDBService _dbService;
     private readonly ICrudService _crudService;
+    private readonly IDBCommandService _dbCommandService;
     private readonly ILogger<Model> _logger;
     private string _errorMessage;
     public AddModelCommandHandler(
         IDBService dbService,
         ICrudService crudService,
+        IDBCommandService dbCommandService,
         ILogger<Model> logger
     )
     {
         _dbService = dbService;
         _crudService = crudService;
+        _dbCommandService = dbCommandService;
         _logger = logger;
     }
 
@@ -97,7 +100,12 @@ public class AddModelCommandHandler : IRequestHandler<AddModelCommand, IResult>
 
         // do the normal Add action
         var createdModel = _crudService.Add<Model, ModelDto, AddModelCommand>(command);
-        return await Task.FromResult(Results.Ok(createdModel));
+
+        // create and save model stock with default values
+        _dbCommandService.Add<Stock>(new Stock() { ModelId = createdModel.Id });
+        await _dbCommandService.SaveChangesAsync();
+
+        return Results.Ok(createdModel);
     }
 
 }

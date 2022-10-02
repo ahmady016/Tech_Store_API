@@ -14,6 +14,21 @@ public class Stock
     public long TotalInStock { get; set; } = 0;
 
     public Model Model { get; set; }
+
+    public void PurchaseUpdate(int quantity, double totalPrice)
+    {
+        TotalPurchasesQuantity += quantity;
+        TotalInStock += quantity;
+        TotalPurchasesPrice += totalPrice;
+        Profit -= totalPrice;
+    }
+    public void SaleUpdate(int quantity, double totalPrice)
+    {
+        TotalSalesQuantity += quantity;
+        TotalInStock += quantity;
+        TotalSalesPrice += totalPrice;
+        Profit -= totalPrice;
+    }
 }
 
 public class StockConfig : IEntityTypeConfiguration<Stock>
