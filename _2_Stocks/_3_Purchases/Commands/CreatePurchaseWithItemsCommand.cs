@@ -8,26 +8,6 @@ using Entities;
 
 namespace Purchases.Commands;
 
-public class CreatePurchaseItemInput
-{
-    [Required(ErrorMessage = "ModelId is Required")]
-    [RegularExpression(
-        @"^(\{){0,1}[0-9a-fA-F]{8}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{12}(\}){0,1}$",
-        ErrorMessage = "Not a valid ModelId value"
-    )]
-    public Guid ModelId { get; set; }
-
-    [Required(ErrorMessage = "Quantity is Required")]
-    [MinLength(1)]
-    public int Quantity { get; set; } = 0;
-
-    [Required(ErrorMessage = "UnitPrice is Required")]
-    [MinLength(1)]
-    public double UnitPrice { get; set; } = 0.0;
-
-    [MinLength(1)]
-    public double TotalPrice { get; set; } = 0.0;
-}
 public class CreatePurchaseWithItemsCommand : IRequest<IResult>
 {
     [DataType(DataType.DateTime)]
@@ -42,7 +22,7 @@ public class CreatePurchaseWithItemsCommand : IRequest<IResult>
     public string EmployeeId { get; set; }
 
     [Required(ErrorMessage = "Items is Required")]
-    public List<CreatePurchaseItemInput> Items { get; set; }
+    public List<CreatePurchaseItemCommand> Items { get; set; }
 }
 
 public class CreatePurchaseWithItemsCommandHandler : IRequestHandler<CreatePurchaseWithItemsCommand, IResult>
