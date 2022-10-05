@@ -36,7 +36,7 @@ public class BrandsController : ControllerBase
         return _mediator.Send(new SearchBrandsQuery() { Where = where, Select = select, OrderBy = orderBy, PageSize = pageSize, PageNumber = pageNumber });
     }
     /// <summary>
-    /// Brands/Find/[id]
+    /// Brands/FindOne/[id]
     /// </summary>
     /// <returns>BrandDto</returns>
     [HttpGet("{id}")]
@@ -45,7 +45,7 @@ public class BrandsController : ControllerBase
         return _mediator.Send(new FindBrandQuery() { Id = id });
     }
     /// <summary>
-    /// Brands/Find/[ids]
+    /// Brands/FindList/[ids]
     /// </summary>
     /// <returns>List of BrandDto</returns>
     [HttpGet("{ids}")]
