@@ -56,14 +56,14 @@ public class SaleItemConfig : IEntityTypeConfiguration<SaleItem>
             .HasColumnName("sale_id")
             .HasColumnType("uniqueidentifier");
 
-        entity.HasIndex(e => e.ModelId, "model_id_fk_index");
+        entity.HasIndex(e => e.ModelId, "sales_items_model_id_fk_index");
         entity.HasOne(saleItem => saleItem.Model)
             .WithMany(model => model.SalesItems)
             .HasForeignKey(saleItem => saleItem.ModelId)
             .OnDelete(DeleteBehavior.Restrict)
             .HasConstraintName("models_sales_items_fk");
 
-        entity.HasIndex(e => e.SaleId, "sale_id_fk_index");
+        entity.HasIndex(e => e.SaleId, "sales_items_sale_id_fk_index");
         entity.HasOne(saleItem => saleItem.Sale)
             .WithMany(sale => sale.Items)
             .HasForeignKey(saleItem => saleItem.SaleId)

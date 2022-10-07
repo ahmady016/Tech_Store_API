@@ -56,14 +56,14 @@ public class PurchaseItemConfig : IEntityTypeConfiguration<PurchaseItem>
             .HasColumnName("purchase_id")
             .HasColumnType("uniqueidentifier");
 
-        entity.HasIndex(e => e.ModelId, "model_id_fk_index");
+        entity.HasIndex(e => e.ModelId, "purchases_items_model_id_fk_index");
         entity.HasOne(purchaseItem => purchaseItem.Model)
             .WithMany(model => model.PurchasesItems)
             .HasForeignKey(purchaseItem => purchaseItem.ModelId)
             .OnDelete(DeleteBehavior.Restrict)
             .HasConstraintName("models_purchases_items_fk");
 
-        entity.HasIndex(e => e.PurchaseId, "purchase_id_fk_index");
+        entity.HasIndex(e => e.PurchaseId, "purchases_items_purchase_id_fk_index");
         entity.HasOne(purchaseItem => purchaseItem.Purchase)
             .WithMany(purchase => purchase.Items)
             .HasForeignKey(purchaseItem => purchaseItem.PurchaseId)

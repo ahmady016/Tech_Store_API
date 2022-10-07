@@ -20,6 +20,7 @@ public class Model : Entity
     public Stock Stock { get; set; }
     public virtual ICollection<PurchaseItem> PurchasesItems { get; set; } = new HashSet<PurchaseItem>();
     public virtual ICollection<SaleItem> SalesItems { get; set; } = new HashSet<SaleItem>();
+    public virtual ICollection<Comment> Comments { get; set; } = new HashSet<Comment>();
 }
 
 public class ModelConfig : EntityConfig<Model>
@@ -70,14 +71,14 @@ public class ModelConfig : EntityConfig<Model>
             .HasColumnName("brand_id")
             .HasColumnType("uniqueidentifier");
 
-        entity.HasIndex(e => e.ProductId, "product_id_fk_index");
+        entity.HasIndex(e => e.ProductId, "models_product_id_fk_index");
         entity.HasOne(model => model.Product)
             .WithMany(product => product.Models)
             .HasForeignKey(model => model.ProductId)
             .OnDelete(DeleteBehavior.Restrict)
             .HasConstraintName("products_models_fk");
 
-        entity.HasIndex(e => e.BrandId, "brand_id_fk_index");
+        entity.HasIndex(e => e.BrandId, "models_brand_id_fk_index");
         entity.HasOne(model => model.Brand)
             .WithMany(brand => brand.Models)
             .HasForeignKey(model => model.BrandId)

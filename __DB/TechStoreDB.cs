@@ -29,6 +29,9 @@ public partial class TechStoreDB : DbContext
     public DbSet<SaleItem> SalesItems { get; set; }
     public DbSet<Stock> Stocks { get; set; }
 
+    public DbSet<Comment> Comments { get; set; }
+    public DbSet<Reply> Replies { get; set; }
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.ApplyConfiguration(new UserRoleConfig());
@@ -42,6 +45,9 @@ public partial class TechStoreDB : DbContext
         modelBuilder.ApplyConfiguration(new SaleConfig());
         modelBuilder.ApplyConfiguration(new SaleItemConfig());
         modelBuilder.ApplyConfiguration(new StockConfig());
+
+        modelBuilder.ApplyConfiguration(new CommentConfig());
+        modelBuilder.ApplyConfiguration(new ReplyConfig());
 
         OnModelCreatingPartial(modelBuilder);
     }

@@ -35,4 +35,6 @@ public class User : IdentityUser
     public virtual ICollection<Purchase> Purchases { get; set; } = new HashSet<Purchase>();
     public virtual ICollection<Sale> EmployeeSales { get; set; } = new HashSet<Sale>();
     public virtual ICollection<Sale> CustomerSales { get; set; } = new HashSet<Sale>();
+    public virtual ICollection<Comment> Comments { get; set; } = new HashSet<Comment>();
+    public virtual ICollection<Reply> Replies { get; set; } = new HashSet<Reply>();
 }
