@@ -22,7 +22,7 @@ public class SearchModelsQueryHandler : IRequestHandler<SearchModelsQuery, IResu
     )
     {
         IResult result;
-        if (request.PageSize is not null && request.PageSize is not null)
+        if (request.PageSize is not null && request.PageNumber is not null)
             result = Results.Ok(
                 _crudService.QueryPage<Model, ModelDto>(request.Where, request.Select, request.OrderBy, (int)request.PageSize, (int)request.PageNumber)
             );

@@ -50,7 +50,7 @@ public class SearchRolesQueryHandler : IRequestHandler<SearchRolesQuery, IResult
             query = query.Select(request.Select.RemoveEmptyElements(',')) as IQueryable<Role>;
 
         IResult result;
-        if (request.PageSize is not null && request.PageSize is not null)
+        if (request.PageSize is not null && request.PageNumber is not null)
         {
             var page = await _dbQueryService.GetPageAsync<Role>(query, (int)request.PageSize, (int)request.PageNumber);
             result = request.Select is not null

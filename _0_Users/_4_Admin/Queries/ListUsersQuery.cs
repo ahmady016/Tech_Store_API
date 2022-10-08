@@ -29,7 +29,7 @@ public class ListUsersQueryHandler : IRequestHandler<ListUsersQuery, IResult> {
     )
     {
         IResult result;
-        if (request.PageSize is not null && request.PageSize is not null)
+        if (request.PageSize is not null && request.PageNumber is not null)
         {
             var page = await _dbQueryService.GetPageAsync<User>(
                 _dbQueryService.GetQuery<User>(),

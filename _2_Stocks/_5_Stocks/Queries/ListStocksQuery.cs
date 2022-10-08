@@ -47,7 +47,7 @@ public class ListStocksQueryHandler : IRequestHandler<ListStocksQuery, IResult>
             });
 
         IResult result;
-        if (query.PageSize is not null && query.PageSize is not null)
+        if (query.PageSize is not null && query.PageNumber is not null)
         {
             var page = await _dbQueryService
                 .GetPageAsync<DetailedStockDto>(dbQuery, (int)query.PageSize, (int)query.PageNumber);

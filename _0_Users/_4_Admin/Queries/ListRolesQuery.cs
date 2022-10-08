@@ -29,7 +29,7 @@ public class ListRolesQueryHandler : IRequestHandler<ListRolesQuery, IResult> {
     )
     {
         IResult result;
-        if (request.PageSize is not null && request.PageSize is not null)
+        if (request.PageSize is not null && request.PageNumber is not null)
         {
             var page = await _dbQueryService.GetPageAsync<Role>(
                 _dbQueryService.GetQuery<Role>(),

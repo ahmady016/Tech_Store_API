@@ -30,7 +30,7 @@ public class ListPurchasesQueryHandler : IRequestHandler<ListPurchasesQuery, IRe
     )
     {
         IResult result;
-        if (query.PageSize is not null && query.PageSize is not null)
+        if (query.PageSize is not null && query.PageNumber is not null)
         {
             var page = await _dbQueryService.GetPageAsync<Purchase>(
                 _dbQueryService.GetQuery<Purchase>(),

@@ -50,7 +50,7 @@ public class SearchSalesQueryHandler : IRequestHandler<SearchSalesQuery, IResult
             query = query.Select(request.Select.RemoveEmptyElements(',')) as IQueryable<Sale>;
 
         IResult result;
-        if (request.PageSize is not null && request.PageSize is not null)
+        if (request.PageSize is not null && request.PageNumber is not null)
         {
             var page = await _dbQueryService.GetPageAsync<Sale>(query, (int)request.PageSize, (int)request.PageNumber);
             result = request.Select is not null

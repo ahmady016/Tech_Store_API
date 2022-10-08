@@ -46,7 +46,7 @@ public class ListSalesItemsQueryHandler : IRequestHandler<ListSalesItemsQuery, I
                     EmployeeId = item.Sale.EmployeeId
                 });
 
-        if (query.PageSize is not null && query.PageSize is not null)
+        if (query.PageSize is not null && query.PageNumber is not null)
         {
             var page = await _dbQueryService
                 .GetPageAsync<DetailedSaleItemDto>(dbQuery, (int)query.PageSize, (int)query.PageNumber);

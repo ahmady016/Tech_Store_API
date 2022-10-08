@@ -22,7 +22,7 @@ public class SearchBrandsQueryHandler : IRequestHandler<SearchBrandsQuery, IResu
     )
     {
         IResult result;
-        if (request.PageSize is not null && request.PageSize is not null)
+        if (request.PageSize is not null && request.PageNumber is not null)
             result = Results.Ok(
                 _crudService.QueryPage<Brand, BrandDto>(request.Where, request.Select, request.OrderBy, (int)request.PageSize, (int)request.PageNumber)
             );

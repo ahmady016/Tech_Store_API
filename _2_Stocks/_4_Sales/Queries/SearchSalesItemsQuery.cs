@@ -59,7 +59,7 @@ public class SearchSalesItemsQueryHandler : IRequestHandler<SearchSalesItemsQuer
             query = query.Select(request.Select.RemoveEmptyElements(',')) as IQueryable<SaleItem>;
 
         IResult result;
-        if (request.PageSize is not null && request.PageSize is not null)
+        if (request.PageSize is not null && request.PageNumber is not null)
         {
             if(request.Select is not null)
             {
