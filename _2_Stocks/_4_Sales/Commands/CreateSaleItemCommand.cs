@@ -38,8 +38,8 @@ public class CreateSaleItemCommandHandler : IRequestHandler<CreateSaleItemComman
         IMapper mapper
     )
     {
-        _dbCommandService = dbCommandService;
         _dbQueryService = dbQueryService;
+        _dbCommandService = dbCommandService;
         _mapper = mapper;
     }
 
