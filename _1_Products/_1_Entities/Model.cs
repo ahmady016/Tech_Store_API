@@ -21,6 +21,8 @@ public class Model : Entity
     public virtual ICollection<PurchaseItem> PurchasesItems { get; set; } = new HashSet<PurchaseItem>();
     public virtual ICollection<SaleItem> SalesItems { get; set; } = new HashSet<SaleItem>();
     public virtual ICollection<Comment> Comments { get; set; } = new HashSet<Comment>();
+
+    public virtual ICollection<CustomerFavoriteModel> CustomersFavoritesModels { get; set; } = new HashSet<CustomerFavoriteModel>();
 }
 
 public class ModelConfig : EntityConfig<Model>

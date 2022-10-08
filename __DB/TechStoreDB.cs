@@ -32,6 +32,8 @@ public partial class TechStoreDB : DbContext
     public DbSet<Comment> Comments { get; set; }
     public DbSet<Reply> Replies { get; set; }
 
+    public DbSet<CustomerFavoriteModel> CustomersFavoritesModels { get; set; }
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.ApplyConfiguration(new UserRoleConfig());
@@ -48,6 +50,8 @@ public partial class TechStoreDB : DbContext
 
         modelBuilder.ApplyConfiguration(new CommentConfig());
         modelBuilder.ApplyConfiguration(new ReplyConfig());
+
+        modelBuilder.ApplyConfiguration(new CustomerFavoriteModelConfig());
 
         OnModelCreatingPartial(modelBuilder);
     }
