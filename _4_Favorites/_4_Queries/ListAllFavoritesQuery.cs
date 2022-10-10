@@ -1,5 +1,5 @@
-using System.ComponentModel.DataAnnotations;
 using Microsoft.EntityFrameworkCore;
+using AutoMapper;
 using MediatR;
 
 using DB;
@@ -8,45 +8,27 @@ using Dtos;
 
 namespace Favorites.Queries;
 
-public class ListCustomerFavoriteModelsQuery : IRequest<IResult>
+public class ListAllFavoritesQuery : IRequest<IResult>
 {
-    [Required(ErrorMessage = "CustomerId is Required")]
-    [StringLength(450, MinimumLength = 36, ErrorMessage = "CustomerId must between 36 and 450 characters")]
-    public string CustomerId { get; set; }
     public int? PageSize { get; set; } = null;
     public int? PageNumber { get; set; } = null;
 }
 
-public class ListCustomerFavoriteModelsQueryHandler : IRequestHandler<ListCustomerFavoriteModelsQuery, IResult>
+public class ListAllFavoritesQueryHandler : IRequestHandler<ListAllFavoritesQuery, IResult>
 {
     private readonly IDBQueryService _dbQueryService;
-    private readonly ILogger<CustomerFavoriteModel> _logger;
-    private string _errorMessage;
-    public ListCustomerFavoriteModelsQueryHandler(
-        IDBQueryService dbQueryService,
-        IDBCommandService dbCommandService,
-        ILogger<CustomerFavoriteModel> logger
-    )
+    public ListAllFavoritesQueryHandler(IDBQueryService dbQueryService)
     {
         _dbQueryService = dbQueryService;
-        _logger = logger;
     }
 
     public async Task<IResult> Handle(
-        ListCustomerFavoriteModelsQuery query,
+        ListAllFavoritesQuery query,
         CancellationToken cancellationToken
     )
     {
-        var existedCustomer = await _dbQueryService.FindAsync<User>(query.CustomerId);
-        if(existedCustomer is null)
-        {
-            _errorMessage = $"Customer Record with Id: {query.CustomerId} Not Found";
-            _logger.LogError(_errorMessage);
-            return Results.NotFound( new { Message = _errorMessage });
-        }
-
         var dbQuery = _dbQueryService
-            .GetQuery<CustomerFavoriteModel>(e => e.CustomerId == query.CustomerId)
+            .GetQuery<CustomerFavoriteModel>()
             .Include("Customer")
             .Include("Model")
             .Include("Model.Product")
