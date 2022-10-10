@@ -14,6 +14,8 @@ public class Model : Entity
     public Category Category { get; set; }
     public Guid ProductId { get; set; }
     public Guid BrandId { get; set; }
+    public long RatingCount { get; set; } = 0;
+    public double RatingAverage { get; set; } = 0.0;
 
     public Product Product { get; set; }
     public Brand Brand { get; set; }
@@ -23,6 +25,7 @@ public class Model : Entity
     public virtual ICollection<Comment> Comments { get; set; } = new HashSet<Comment>();
 
     public virtual ICollection<CustomerFavoriteModel> CustomersFavoritesModels { get; set; } = new HashSet<CustomerFavoriteModel>();
+    public virtual ICollection<Rating> Ratings { get; set; } = new HashSet<Rating>();
 }
 
 public class ModelConfig : EntityConfig<Model>
@@ -60,6 +63,18 @@ public class ModelConfig : EntityConfig<Model>
             .IsRequired()
             .HasColumnName("category")
             .HasColumnType("tinyint");
+
+        entity.Property(e => e.RatingCount)
+            .IsRequired()
+            .HasDefaultValue(0)
+            .HasColumnName("rating_count")
+            .HasColumnType("bigint");
+
+        entity.Property(e => e.RatingAverage)
+            .IsRequired()
+            .HasDefaultValue(0.0)
+            .HasColumnName("rating_average")
+            .HasColumnType("float");
 
         entity.HasIndex(e => e.Title)
             .HasDatabaseName("model_title_unique_index")

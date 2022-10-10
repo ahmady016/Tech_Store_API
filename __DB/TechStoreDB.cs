@@ -33,6 +33,7 @@ public partial class TechStoreDB : DbContext
     public DbSet<Reply> Replies { get; set; }
 
     public DbSet<CustomerFavoriteModel> CustomersFavoritesModels { get; set; }
+    public DbSet<Rating> Ratings { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -52,6 +53,7 @@ public partial class TechStoreDB : DbContext
         modelBuilder.ApplyConfiguration(new ReplyConfig());
 
         modelBuilder.ApplyConfiguration(new CustomerFavoriteModelConfig());
+        modelBuilder.ApplyConfiguration(new RatingConfig());
 
         OnModelCreatingPartial(modelBuilder);
     }

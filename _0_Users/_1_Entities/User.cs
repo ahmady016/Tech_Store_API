@@ -39,4 +39,5 @@ public class User : IdentityUser
     public virtual ICollection<Reply> Replies { get; set; } = new HashSet<Reply>();
 
     public virtual ICollection<CustomerFavoriteModel> CustomersFavoritesModels { get; set; } = new HashSet<CustomerFavoriteModel>();
+    public virtual ICollection<Rating> Ratings { get; set; } = new HashSet<Rating>();
 }
