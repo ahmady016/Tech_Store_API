@@ -67,8 +67,8 @@ public class AddManyModelsCommandHandler : IRequestHandler<AddManyModelsCommand,
         }
 
         // do the normal Add action
-        var createdModels = _crudService.AddMany<Model, ModelDto, AddModelCommand>(command.NewModels);
-        return await Task.FromResult(Results.Ok(createdModels));
+        var createdModels = await _crudService.AddManyAsync<Model, ModelDto, AddModelCommand>(command.NewModels);
+        return Results.Ok(createdModels);
     }
 
 }

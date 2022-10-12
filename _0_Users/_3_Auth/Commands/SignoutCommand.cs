@@ -54,7 +54,7 @@ public class SignoutCommandHandler : IRequestHandler<SignoutCommand, IResult> {
             return Results.Conflict(_errorMessage);
         }
 
-        _dbService.SaveChanges();
+        await _dbService.SaveChangesAsync();
         return Results.Ok(new { Message = "User is loggedOut successfully ..." });
     }
 

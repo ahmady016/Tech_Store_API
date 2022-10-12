@@ -11,6 +11,7 @@ public interface ICrudService
 {
     T GetById<T>(Guid id) where T : Entity;
     List<T> GetByIds<T>(List<Guid> ids) where T : Entity;
+
     List<TDto> List<T, TDto>(string type = "existed") where T : Entity;
     PageResult<TDto> ListPage<T, TDto>(string type = "existed", int pageSize = 10, int pageNumber = 1) where T : Entity;
 
@@ -20,17 +21,17 @@ public interface ICrudService
     TDto Find<T, TDto>(Guid id) where T : Entity;
     List<TDto> FindList<T, TDto>(string ids) where T : Entity;
 
-    TDto Add<T, TDto, TCreateInput>(TCreateInput input) where T : Entity;
-    List<TDto> AddMany<T, TDto, TCreateInput>(List<TCreateInput> inputs) where T : Entity;
+    Task<TDto> AddAsync<T, TDto, TCreateInput>(TCreateInput input) where T : Entity;
+    Task<List<TDto>> AddManyAsync<T, TDto, TCreateInput>(List<TCreateInput> inputs) where T : Entity;
 
-    TDto Update<T, TDto, TUpdate, TCommand>(TUpdate input, T oldItem = null) where T : Entity where TUpdate : UpdateCommand<TCommand> where TCommand : class;
-    List<TDto> UpdateMany<T, TDto, TUpdate, TCommand>(List<TUpdate> inputs, List<T> oldItems = null) where T : Entity where TUpdate : UpdateCommand<TCommand> where TCommand : class;
+    Task<TDto> UpdateAsync<T, TDto, TUpdate, TCommand>(TUpdate input, T oldItem = null) where T : Entity where TUpdate : UpdateCommand<TCommand> where TCommand : class;
+    Task<List<TDto>> UpdateManyAsync<T, TDto, TUpdate, TCommand>(List<TUpdate> inputs, List<T> oldItems = null) where T : Entity where TUpdate : UpdateCommand<TCommand> where TCommand : class;
 
-    bool Delete<T>(Guid id) where T : Entity;
-    bool Restore<T>(Guid id) where T : Entity;
+    Task<bool> DeleteAsync<T>(Guid id) where T : Entity;
+    Task<bool> RestoreAsync<T>(Guid id) where T : Entity;
 
-    bool Activate<T>(Guid id) where T : Entity;
-    bool Disable<T>(Guid id) where T : Entity;
+    Task<bool> ActivateAsync<T>(Guid id) where T : Entity;
+    Task<bool> DisableAsync<T>(Guid id) where T : Entity;
 }
 
 public class CrudService : ICrudService
@@ -191,22 +192,22 @@ public class CrudService : ICrudService
         return _mapper.Map<List<TDto>>(list);
     }
 
-    public TDto Add<T, TDto, TCreateInput>(TCreateInput input) where T : Entity
+    public async Task<TDto> AddAsync<T, TDto, TCreateInput>(TCreateInput input) where T : Entity
     {
         var dbItem = _mapper.Map<T>(input);
         var createdItem = _dbService.Add<T>(dbItem);
-        _dbService.SaveChanges();
+        await _dbService.SaveChangesAsync();
         return _mapper.Map<TDto>(createdItem);
     }
-    public List<TDto> AddMany<T, TDto, TCreateInput>(List<TCreateInput> inputs) where T : Entity
+    public async Task<List<TDto>> AddManyAsync<T, TDto, TCreateInput>(List<TCreateInput> inputs) where T : Entity
     {
         var dbItems = _mapper.Map<List<T>>(inputs);
         var createdItems = _dbService.AddAndGetRange<T>(dbItems);
-        _dbService.SaveChanges();
+        await _dbService.SaveChangesAsync();
         return _mapper.Map<List<TDto>>(createdItems);
     }
 
-    public TDto Update<T, TDto, TUpdate, TCommand>(TUpdate input, T oldItem = null) where T : Entity where TUpdate : UpdateCommand<TCommand> where TCommand : class
+    public async Task<TDto> UpdateAsync<T, TDto, TUpdate, TCommand>(TUpdate input, T oldItem = null) where T : Entity where TUpdate : UpdateCommand<TCommand> where TCommand : class
     {
         if(oldItem is null)
             oldItem = GetById<T>(input.Id);
@@ -215,11 +216,11 @@ public class CrudService : ICrudService
         FillNonInputValues(oldItem, newItem);
 
         var updatedItem = _dbService.Update<T>(newItem);
-        _dbService.SaveChanges();
+        await _dbService.SaveChangesAsync();
 
         return _mapper.Map<TDto>(updatedItem);
     }
-    public List<TDto> UpdateMany<T, TDto, TUpdate, TCommand>(List<TUpdate> inputs, List<T> oldItems = null) where T : Entity where TUpdate : UpdateCommand<TCommand> where TCommand : class
+    public async Task<List<TDto>> UpdateManyAsync<T, TDto, TUpdate, TCommand>(List<TUpdate> inputs, List<T> oldItems = null) where T : Entity where TUpdate : UpdateCommand<TCommand> where TCommand : class
     {
         if(oldItems is null)
             oldItems = GetByIds<T>(inputs.Select(x => x.Id).ToList());
@@ -229,38 +230,38 @@ public class CrudService : ICrudService
             FillNonInputValues(oldItems[i], newItems[i]);
 
         var updatedItems = _dbService.UpdateAndGetRange<T>(newItems);
-        _dbService.SaveChanges();
+        await _dbService.SaveChangesAsync();
 
         return _mapper.Map<List<TDto>>(updatedItems);
     }
 
-    public bool Delete<T>(Guid id) where T : Entity
+    public async Task<bool> DeleteAsync<T>(Guid id) where T : Entity
     {
         var dbItem = GetById<T>(id);
         _dbService.Delete<T>(dbItem);
-        _dbService.SaveChanges();
+        await _dbService.SaveChangesAsync();
         return true;
     }
-    public bool Restore<T>(Guid id) where T : Entity
+    public async Task<bool> RestoreAsync<T>(Guid id) where T : Entity
     {
         var dbItem = GetById<T>(id);
         _dbService.Restore<T>(dbItem);
-        _dbService.SaveChanges();
+        await _dbService.SaveChangesAsync();
         return true;
     }
 
-    public bool Activate<T>(Guid id) where T : Entity
+    public async Task<bool> ActivateAsync<T>(Guid id) where T : Entity
     {
         var dbItem = GetById<T>(id);
         _dbService.Activate<T>(dbItem);
-        _dbService.SaveChanges();
+        await _dbService.SaveChangesAsync();
         return true;
     }
-    public bool Disable<T>(Guid id) where T : Entity
+    public async Task<bool> DisableAsync<T>(Guid id) where T : Entity
     {
         var dbItem = GetById<T>(id);
         _dbService.Disable<T>(dbItem);
-        _dbService.SaveChanges();
+        await _dbService.SaveChangesAsync();
         return true;
     }
 

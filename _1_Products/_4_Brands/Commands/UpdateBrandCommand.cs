@@ -47,8 +47,8 @@ public class UpdateBrandCommandHandler : IRequestHandler<UpdateBrandCommand, IRe
         }
 
         // do the normal update action
-        var updatedBrand = _crudService.Update<Brand, BrandDto, UpdateBrandCommand, AddBrandCommand>(command, oldBrand);
-        return await Task.FromResult(Results.Ok(updatedBrand));
+        var updatedBrand = await _crudService.UpdateAsync<Brand, BrandDto, UpdateBrandCommand, AddBrandCommand>(command, oldBrand);
+        return Results.Ok(updatedBrand);
     }
 
 }

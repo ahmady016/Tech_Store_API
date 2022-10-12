@@ -74,8 +74,8 @@ public class UpdateModelCommandHandler : IRequestHandler<UpdateModelCommand, IRe
         }
 
         // do the normal update action
-        var updatedModel = _crudService.Update<Model, ModelDto, UpdateModelCommand, AddModelCommand>(command, oldModel);
-        return await Task.FromResult(Results.Ok(updatedModel));
+        var updatedModel = await _crudService.UpdateAsync<Model, ModelDto, UpdateModelCommand, AddModelCommand>(command, oldModel);
+        return Results.Ok(updatedModel);
     }
 
 }

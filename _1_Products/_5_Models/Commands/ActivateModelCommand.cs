@@ -21,8 +21,8 @@ public class ActivateModelCommandHandler : IRequestHandler<ActivateModelCommand,
         CancellationToken cancellationToken
     )
     {
-        _ = _crudService.Activate<Model>(command.Id);
-        return await Task.FromResult(Results.Ok($"Model with Id: {command.Id} was activated successfully"));
+        await _crudService.ActivateAsync<Model>(command.Id);
+        return Results.Ok($"Model with Id: {command.Id} was activated successfully");
     }
 
 }

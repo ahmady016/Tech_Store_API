@@ -21,8 +21,8 @@ public class RestoreBrandCommandHandler : IRequestHandler<RestoreBrandCommand, I
         CancellationToken cancellationToken
     )
     {
-        _ = _crudService.Restore<Brand>(command.Id);
-        return await Task.FromResult(Results.Ok($"Brand with Id: {command.Id} was restored successfully"));
+        await _crudService.RestoreAsync<Brand>(command.Id);
+        return Results.Ok($"Brand with Id: {command.Id} was restored successfully");
     }
 
 }

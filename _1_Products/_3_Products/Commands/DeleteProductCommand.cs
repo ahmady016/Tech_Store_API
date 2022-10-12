@@ -21,8 +21,8 @@ public class DeleteProductCommandHandler : IRequestHandler<DeleteProductCommand,
         CancellationToken cancellationToken
     )
     {
-        _ = _crudService.Delete<Product>(command.Id);
-        return await Task.FromResult(Results.Ok($"Product with Id: {command.Id} was deleted successfully"));
+        await _crudService.DeleteAsync<Product>(command.Id);
+        return Results.Ok($"Product with Id: {command.Id} was deleted successfully");
     }
 
 }

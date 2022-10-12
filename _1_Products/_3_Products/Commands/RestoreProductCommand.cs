@@ -21,8 +21,8 @@ public class RestoreProductCommandHandler : IRequestHandler<RestoreProductComman
         CancellationToken cancellationToken
     )
     {
-        _ = _crudService.Restore<Product>(command.Id);
-        return await Task.FromResult(Results.Ok($"Product with Id: {command.Id} was restored successfully"));
+        await _crudService.RestoreAsync<Product>(command.Id);
+        return Results.Ok($"Product with Id: {command.Id} was restored successfully");
     }
 
 }

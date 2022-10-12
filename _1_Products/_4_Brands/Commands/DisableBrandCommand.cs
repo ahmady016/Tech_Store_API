@@ -21,8 +21,8 @@ public class DisableBrandCommandHandler : IRequestHandler<DisableBrandCommand, I
         CancellationToken cancellationToken
     )
     {
-        _ = _crudService.Disable<Brand>(command.Id);
-        return await Task.FromResult(Results.Ok($"Brand with Id: {command.Id} was disabled successfully"));
+        await _crudService.DisableAsync<Brand>(command.Id);
+        return Results.Ok($"Brand with Id: {command.Id} was disabled successfully");
     }
 
 }

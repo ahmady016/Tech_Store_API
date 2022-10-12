@@ -40,17 +40,13 @@ public class RevokeTokenCommandHandler : IRequestHandler<RevokeTokenCommand, IRe
         {
             _errorMessage = "Invalid Token !!!";
             _logger.LogError(_errorMessage);
-            return await Task.FromResult(
-                Results.BadRequest(new { Message = "Refresh Token is Expired Or Revoked already" })
-            );
+            return Results.BadRequest(new { Message = "Refresh Token is Expired Or Revoked already" });
         }
 
         _authService.RevokeToken(existedRefreshToken);
         _dbService.Update<RefreshToken>(existedRefreshToken);
-        _dbService.SaveChanges();
-        return await Task.FromResult(
-            Results.Ok(new { Message = "Refresh Token was revoked successfully" })
-        );
+        await _dbService.SaveChangesAsync();
+        return Results.Ok(new { Message = "Refresh Token was revoked successfully" });
     }
 
 }

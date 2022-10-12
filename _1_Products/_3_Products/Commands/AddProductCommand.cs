@@ -54,8 +54,8 @@ public class AddProductCommandHandler : IRequestHandler<AddProductCommand, IResu
         }
 
         // do the normal Add action
-        var createdProduct = _crudService.Add<Product, ProductDto, AddProductCommand>(command);
-        return await Task.FromResult(Results.Ok(createdProduct));
+        var createdProduct = await _crudService.AddAsync<Product, ProductDto, AddProductCommand>(command);
+        return Results.Ok(createdProduct);
     }
 
 }

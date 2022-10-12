@@ -21,8 +21,8 @@ public class ActivateBrandCommandHandler : IRequestHandler<ActivateBrandCommand,
         CancellationToken cancellationToken
     )
     {
-        _ = _crudService.Activate<Brand>(command.Id);
-        return await Task.FromResult(Results.Ok($"Brand with Id: {command.Id} was activated successfully"));
+        await _crudService.ActivateAsync<Brand>(command.Id);
+        return Results.Ok($"Brand with Id: {command.Id} was activated successfully");
     }
 
 }

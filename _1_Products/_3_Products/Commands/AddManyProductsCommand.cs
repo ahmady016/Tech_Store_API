@@ -45,8 +45,8 @@ public class AddManyProductsCommandHandler : IRequestHandler<AddManyProductsComm
         }
 
         // do the normal Add action
-        var createdProducts = _crudService.AddMany<Product, ProductDto, AddProductCommand>(command.NewProducts);
-        return await Task.FromResult(Results.Ok(createdProducts));
+        var createdProducts = await _crudService.AddManyAsync<Product, ProductDto, AddProductCommand>(command.NewProducts);
+        return Results.Ok(createdProducts);
     }
 
 }

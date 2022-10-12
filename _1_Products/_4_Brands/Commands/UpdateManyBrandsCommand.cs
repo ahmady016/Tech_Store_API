@@ -56,8 +56,8 @@ public class UpdateManyBrandsCommandHandler : IRequestHandler<UpdateManyBrandsCo
         }
 
         // do the normal update many items action
-        var updatedBrands = _crudService.UpdateMany<Brand, BrandDto, UpdateBrandCommand, AddBrandCommand>(command.ModifiedBrands, oldBrands);
-        return await Task.FromResult(Results.Ok(updatedBrands));
+        var updatedBrands = await _crudService.UpdateManyAsync<Brand, BrandDto, UpdateBrandCommand, AddBrandCommand>(command.ModifiedBrands, oldBrands);
+        return Results.Ok(updatedBrands);
     }
 
 }

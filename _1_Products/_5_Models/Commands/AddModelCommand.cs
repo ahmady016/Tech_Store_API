@@ -99,7 +99,7 @@ public class AddModelCommandHandler : IRequestHandler<AddModelCommand, IResult>
         }
 
         // do the normal Add action
-        var createdModel = _crudService.Add<Model, ModelDto, AddModelCommand>(command);
+        var createdModel = await _crudService.AddAsync<Model, ModelDto, AddModelCommand>(command);
 
         // create and save model stock with default values
         _dbCommandService.Add<Stock>(new Stock() { ModelId = createdModel.Id });

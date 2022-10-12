@@ -21,8 +21,8 @@ public class DisableModelCommandHandler : IRequestHandler<DisableModelCommand, I
         CancellationToken cancellationToken
     )
     {
-        _ = _crudService.Disable<Model>(command.Id);
-        return await Task.FromResult(Results.Ok($"Model with Id: {command.Id} was disabled successfully"));
+        await _crudService.DisableAsync<Model>(command.Id);
+        return Results.Ok($"Model with Id: {command.Id} was disabled successfully");
     }
 
 }

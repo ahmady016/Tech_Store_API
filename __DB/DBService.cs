@@ -64,7 +64,7 @@ public interface IDBService
     #region [UnitOfEWork]
     void Attach<T>(T entity) where T : Entity;
     void SetState<T>(T entity, string state) where T : Entity;
-    int SaveChanges();
+    Task<int> SaveChangesAsync();
 
     #endregion
 }
@@ -387,9 +387,9 @@ public class DBService : IDBService
                 break;
         }
     }
-    public int SaveChanges()
+    public async Task<int> SaveChangesAsync()
     {
-        return _db.SaveChanges();
+        return await _db.SaveChangesAsync();
     }
     #endregion
 

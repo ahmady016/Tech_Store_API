@@ -13,8 +13,8 @@ public interface IAuthService
 {
     RefreshToken GetRefreshToken(string token);
     void RevokeToken(RefreshToken token, string reason = null);
-    void RevokeAllUserRefreshTokens(string userId);
-    void RemoveAllExpiredOrRevokedTokens(string userId);
+    Task RevokeAllUserRefreshTokensAsync(string userId);
+    Task RemoveAllExpiredOrRevokedTokensAsync(string userId);
     Task<TokensResponse> GenerateTokensAsync(User existedUser);
 }
 
@@ -60,22 +60,22 @@ public class AuthService : IAuthService
 
         return refreshToken;
     }
-    public void RevokeAllUserRefreshTokens(string userId)
+    public async Task RevokeAllUserRefreshTokensAsync(string userId)
     {
         var allUserTokens = _dbService.GetList<RefreshToken>(token => token.UserId == userId);
         if (allUserTokens.Count > 0)
         {
             allUserTokens.ForEach(token => RevokeToken(token, $"Attempted to reuse a revoked token"));
             _dbService.UpdateRange<RefreshToken>(allUserTokens);
-            _dbService.SaveChanges();
+            await _dbService.SaveChangesAsync();
         }
     }
-    public void RemoveAllExpiredOrRevokedTokens(string userId)
+    public async Task RemoveAllExpiredOrRevokedTokensAsync(string userId)
     {
         _dbService.GetListAndDelete<RefreshToken>(token =>
             token.UserId == userId && (token.RevokedAt != null || token.ExpiresAt < DateTime.Now)
         );
-        _dbService.SaveChanges();
+        await _dbService.SaveChangesAsync();
     }
     public async Task<TokensResponse> GenerateTokensAsync(User existedUser)
     {
@@ -97,7 +97,7 @@ public class AuthService : IAuthService
             .ToList();
         var refreshToken = AuthHelpers.CreateRefreshToken(existedUser.Id, usedRefreshTokens);
         _dbService.Add<RefreshToken>(refreshToken);
-        _dbService.SaveChanges();
+        await _dbService.SaveChangesAsync();
 
         return AuthHelpers.GetTokens(accessToken, refreshToken);
     }

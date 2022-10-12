@@ -47,8 +47,8 @@ public class UpdateProductCommandHandler : IRequestHandler<UpdateProductCommand,
         }
 
         // do the normal update action
-        var updatedProduct = _crudService.Update<Product, ProductDto, UpdateProductCommand, AddProductCommand>(command, oldProduct);
-        return await Task.FromResult(Results.Ok(updatedProduct));
+        var updatedProduct = await _crudService.UpdateAsync<Product, ProductDto, UpdateProductCommand, AddProductCommand>(command, oldProduct);
+        return Results.Ok(updatedProduct);
     }
 
 }

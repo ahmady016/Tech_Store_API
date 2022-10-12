@@ -45,8 +45,8 @@ public class AddManyBrandsCommandHandler : IRequestHandler<AddManyBrandsCommand,
         }
 
         // do the normal Add action
-        var createdBrands = _crudService.AddMany<Brand, BrandDto, AddBrandCommand>(command.NewBrands);
-        return await Task.FromResult(Results.Ok(createdBrands));
+        var createdBrands = await _crudService.AddManyAsync<Brand, BrandDto, AddBrandCommand>(command.NewBrands);
+        return Results.Ok(createdBrands);
     }
 
 }

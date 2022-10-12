@@ -91,8 +91,8 @@ public class UpdateManyModelsCommandHandler : IRequestHandler<UpdateManyModelsCo
         }
 
         // do the normal update many items action
-        var updatedModels = _crudService.UpdateMany<Model, ModelDto, UpdateModelCommand, AddModelCommand>(command.ModifiedModels, oldModels);
-        return await Task.FromResult(Results.Ok(updatedModels));
+        var updatedModels = await _crudService.UpdateManyAsync<Model, ModelDto, UpdateModelCommand, AddModelCommand>(command.ModifiedModels, oldModels);
+        return Results.Ok(updatedModels);
     }
 
 }

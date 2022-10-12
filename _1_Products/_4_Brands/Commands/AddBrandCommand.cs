@@ -56,8 +56,8 @@ public class AddBrandCommandHandler : IRequestHandler<AddBrandCommand, IResult>
         }
 
         // do the normal Add action
-        var createdBrand = _crudService.Add<Brand, BrandDto, AddBrandCommand>(command);
-        return await Task.FromResult(Results.Ok(createdBrand));
+        var createdBrand = await _crudService.AddAsync<Brand, BrandDto, AddBrandCommand>(command);
+        return Results.Ok(createdBrand);
     }
 
 }

@@ -21,8 +21,8 @@ public class RestoreModelCommandHandler : IRequestHandler<RestoreModelCommand, I
         CancellationToken cancellationToken
     )
     {
-        _ = _crudService.Restore<Model>(command.Id);
-        return await Task.FromResult(Results.Ok($"Model with Id: {command.Id} was restored successfully"));
+        await _crudService.RestoreAsync<Model>(command.Id);
+        return Results.Ok($"Model with Id: {command.Id} was restored successfully");
     }
 
 }

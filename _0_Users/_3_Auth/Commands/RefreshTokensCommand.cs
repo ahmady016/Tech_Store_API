@@ -41,9 +41,9 @@ public class RefreshTokensCommandHandler : IRequestHandler<RefreshTokensCommand,
 
         // revoke all tokens of that user in case of this token has been compromised
         if (existedRefreshToken.IsRevoked)
-            _authService.RevokeAllUserRefreshTokens(existedRefreshToken.UserId);
+            await _authService.RevokeAllUserRefreshTokensAsync(existedRefreshToken.UserId);
 
-        _authService.RemoveAllExpiredOrRevokedTokens(existedRefreshToken.UserId);
+        await _authService.RemoveAllExpiredOrRevokedTokensAsync(existedRefreshToken.UserId);
 
         var tokens = await _authService.GenerateTokensAsync(existedRefreshToken.User);
         return Results.Ok(new AuthDto() { User = existedRefreshToken.User, Tokens = tokens });

@@ -21,8 +21,8 @@ public class DeleteModelCommandHandler : IRequestHandler<DeleteModelCommand, IRe
         CancellationToken cancellationToken
     )
     {
-        _ = _crudService.Delete<Model>(command.Id);
-        return await Task.FromResult(Results.Ok($"Model with Id: {command.Id} was deleted successfully"));
+        await _crudService.DeleteAsync<Model>(command.Id);
+        return Results.Ok($"Model with Id: {command.Id} was deleted successfully");
     }
 
 }

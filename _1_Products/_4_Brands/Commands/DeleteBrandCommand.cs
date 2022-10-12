@@ -21,8 +21,8 @@ public class DeleteBrandCommandHandler : IRequestHandler<DeleteBrandCommand, IRe
         CancellationToken cancellationToken
     )
     {
-        _ = _crudService.Delete<Brand>(command.Id);
-        return await Task.FromResult(Results.Ok($"Brand with Id: {command.Id} was deleted successfully"));
+        await _crudService.DeleteAsync<Brand>(command.Id);
+        return Results.Ok($"Brand with Id: {command.Id} was deleted successfully");
     }
 
 }
