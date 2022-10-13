@@ -21,8 +21,8 @@ public class FindModelQueryHandler : IRequestHandler<FindModelQuery, IResult>
         CancellationToken cancellationToken
     )
     {
-        var existedModel = _crudService.Find<Model, ModelDto>(request.Id);
-        return await Task.FromResult(Results.Ok(existedModel));
+        var existedModel = await _crudService.FindAsync<Model, ModelDto>(request.Id);
+        return Results.Ok(existedModel);
     }
 
 }

@@ -34,7 +34,7 @@ public class UpdateManyBrandsCommandHandler : IRequestHandler<UpdateManyBrandsCo
     )
     {
         // get oldBrands from db
-        var oldBrands = _crudService.GetByIds<Brand>(command.ModifiedBrands.Select(p => p.Id).ToList());
+        var oldBrands = await _crudService.GetByIdsAsync<Brand>(command.ModifiedBrands.Select(p => p.Id).ToList());
 
         // get existedBrandsTitles and modifiedBrandsTitles
         var existedBrandsTitles = oldBrands.Select(p => p.Title);
@@ -46,12 +46,12 @@ public class UpdateManyBrandsCommandHandler : IRequestHandler<UpdateManyBrandsCo
         // if any titles changed check if already existed in db and then reject all inputs
         if (changedBrandsTitles.Count > 0)
         {
-            var brandsWithSameTitle = _dbService.GetList<Brand>(p => changedBrandsTitles.Contains(p.Title));
+            var brandsWithSameTitle = await _dbService.GetListAsync<Brand>(p => changedBrandsTitles.Contains(p.Title));
             if (brandsWithSameTitle.Count > 0)
             {
                 _errorMessage = $"Brands List was rejected, Some Titles are already existed.";
                 _logger.LogError(_errorMessage);
-                throw new HttpRequestException(_errorMessage, null, HttpStatusCode.Conflict);
+                Results.Conflict(_errorMessage);
             }
         }
 

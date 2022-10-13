@@ -34,7 +34,7 @@ public class UpdateManyProductsCommandHandler : IRequestHandler<UpdateManyProduc
     )
     {
         // get oldProducts from db
-        var oldProducts = _crudService.GetByIds<Product>(command.ModifiedProducts.Select(p => p.Id).ToList());
+        var oldProducts = await _crudService.GetByIdsAsync<Product>(command.ModifiedProducts.Select(p => p.Id).ToList());
 
         // get existedProductsTitles and modifiedProductsTitles
         var existedProductsTitles = oldProducts.Select(p => p.Title);
@@ -46,12 +46,12 @@ public class UpdateManyProductsCommandHandler : IRequestHandler<UpdateManyProduc
         // if any titles changed check if already existed in db and then reject all inputs
         if (changedProductsTitles.Count > 0)
         {
-            var productsWithSameTitle = _dbService.GetList<Product>(p => changedProductsTitles.Contains(p.Title));
+            var productsWithSameTitle = await _dbService.GetListAsync<Product>(p => changedProductsTitles.Contains(p.Title));
             if (productsWithSameTitle.Count > 0)
             {
                 _errorMessage = $"Products List was rejected, Some Titles are already existed.";
                 _logger.LogError(_errorMessage);
-                throw new HttpRequestException(_errorMessage, null, HttpStatusCode.Conflict);
+                Results.Conflict(_errorMessage);
             }
         }
 

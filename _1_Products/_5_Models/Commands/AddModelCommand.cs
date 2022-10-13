@@ -72,30 +72,30 @@ public class AddModelCommandHandler : IRequestHandler<AddModelCommand, IResult>
     )
     {
         // check if the title are existed in db then reject the command and return error
-        var existedModel = _dbService.GetOne<Model>(p => p.Title == command.Title);
+        var existedModel = await _dbService.GetOneAsync<Model>(p => p.Title == command.Title);
         if (existedModel is not null)
         {
             _errorMessage = $"Model Title already existed.";
             _logger.LogError(_errorMessage);
-            throw new HttpRequestException(_errorMessage, null, HttpStatusCode.Conflict);
+            return Results.Conflict(_errorMessage);
         }
 
         // check if the product is not existed in db then reject the command and return error
-        var existedProduct = _dbService.GetOne<Product>(p => p.Id == command.ProductId);
+        var existedProduct = await _dbService.GetOneAsync<Product>(p => p.Id == command.ProductId);
         if (existedProduct is null)
         {
             _errorMessage = $"Product with Id: {command.ProductId} not existed.";
             _logger.LogError(_errorMessage);
-            throw new HttpRequestException(_errorMessage, null, HttpStatusCode.NotFound);
+            return Results.NotFound(_errorMessage);
         }
 
         // check if the brand is not existed in db then reject the command and return error
-        var existedBrand = _dbService.GetOne<Brand>(p => p.Id == command.BrandId);
+        var existedBrand = await _dbService.GetOneAsync<Brand>(p => p.Id == command.BrandId);
         if (existedBrand is null)
         {
             _errorMessage = $"Brand with Id: {command.BrandId} not existed.";
             _logger.LogError(_errorMessage);
-            throw new HttpRequestException(_errorMessage, null, HttpStatusCode.NotFound);
+            return Results.NotFound(_errorMessage);
         }
 
         // do the normal Add action

@@ -21,17 +21,16 @@ public class SearchProductsQueryHandler : IRequestHandler<SearchProductsQuery, I
         CancellationToken cancellationToken
     )
     {
-        IResult result;
         if (request.PageSize is not null && request.PageNumber is not null)
-            result = Results.Ok(
-                _crudService.QueryPage<Product, ProductDto>(request.Where, request.Select, request.OrderBy, (int)request.PageSize, (int)request.PageNumber)
-            );
+        {
+            var page = await _crudService.QueryPageAsync<Product, ProductDto>(request.Where, request.Select, request.OrderBy, (int)request.PageSize, (int)request.PageNumber);
+            return Results.Ok(page);
+        }
         else
-            result = Results.Ok(
-                _crudService.Query<Product, ProductDto>(request.Where, request.Select, request.OrderBy)
-            );
-
-        return await Task.FromResult(result);
+        {
+            var list = await _crudService.QueryAsync<Product, ProductDto>(request.Where, request.Select, request.OrderBy);
+            return Results.Ok(list);
+        }
     }
 
 }

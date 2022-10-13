@@ -8,22 +8,23 @@ namespace DB;
 public interface IDBService
 {
     #region Query [Select]
-    T Find<T>(Guid id) where T : Entity;
-    T GetOne<T>(Expression<Func<T, bool>> where) where T : Entity;
-    T GetOne<T>(Expression<Func<T, bool>> where, params Expression<Func<T, object>>[] includes) where T : Entity;
-    T GetOne<T>(Expression<Func<T, bool>> where, params string[] includes) where T : Entity;
+    Task<T> FindAsync<T>(Guid id) where T : Entity;
+    Task<T> GetOneAsync<T>(Expression<Func<T, bool>> where) where T : Entity;
+    Task<T> GetOneAsync<T>(Expression<Func<T, bool>> where, params Expression<Func<T, object>>[] includes) where T : Entity;
+    Task<T> GetOneAsync<T>(Expression<Func<T, bool>> where, params string[] includes) where T : Entity;
 
-    List<T> GetAll<T>() where T : Entity;
-    List<T> GetList<T>(Expression<Func<T, bool>> where) where T : Entity;
-    List<T> GetList<T>(Expression<Func<T, bool>> where, params Expression<Func<T, object>>[] includes) where T : Entity;
-    List<T> GetList<T>(Expression<Func<T, bool>> where, params string[] includes) where T : Entity;
+    Task<List<T>> GetAllAsync<T>() where T : Entity;
+    Task<List<T>> GetListAsync<T>(Expression<Func<T, bool>> where) where T : Entity;
+    Task<List<T>> GetListAsync<T>(Expression<Func<T, bool>> where, params Expression<Func<T, object>>[] includes) where T : Entity;
+    Task<List<T>> GetListAsync<T>(Expression<Func<T, bool>> where, params string[] includes) where T : Entity;
+    Task<PageResult<T>> GetPageAsync<T>(IQueryable<T> query, int pageSize, int pageNumber) where T : Entity;
+
+    Task<int> CountAsync<T>() where T : Entity;
+    Task<int> CountAsync<T>(Expression<Func<T, bool>> where) where T : Entity;
 
     IQueryable<T> GetQuery<T>() where T : Entity;
     IQueryable<T> GetQuery<T>(Expression<Func<T, bool>> where) where T : Entity;
-    PageResult<T> GetPage<T>(IQueryable<T> query, int pageSize, int pageNumber) where T : Entity;
 
-    int Count<T>() where T : Entity;
-    int Count<T>(Expression<Func<T, bool>> where) where T : Entity;
     #endregion
 
     #region Commands [Add-Update-Delete]
@@ -78,93 +79,93 @@ public class DBService : IDBService
     }
 
     #region Queries [Select]
-    public T Find<T>(Guid id) where T : Entity
+    public async Task<T> FindAsync<T>(Guid id) where T : Entity
     {
-        var entity = _db.Set<T>().Find(id);
+        var entity = await _db.Set<T>().FindAsync(id);
         if(entity is not null)
             _db.Entry(entity).State = EntityState.Detached;
         return entity;
     }
-    public T GetOne<T>(Expression<Func<T, bool>> where) where T : Entity
+    public async Task<T> GetOneAsync<T>(Expression<Func<T, bool>> where) where T : Entity
     {
-        return _db.Set<T>()
+        return await _db.Set<T>()
             .AsNoTracking()
             .Where(where)
-            .FirstOrDefault();
+            .FirstOrDefaultAsync();
     }
-    public T GetOne<T>(Expression<Func<T, bool>> where, params Expression<Func<T, object>>[] includes) where T : Entity
+    public async Task<T> GetOneAsync<T>(Expression<Func<T, bool>> where, params Expression<Func<T, object>>[] includes) where T : Entity
     {
         var query = _db.Set<T>().AsNoTracking();
         foreach (var include in includes)
             query = query.Include(include);
-        return query.Where(where).FirstOrDefault();
+        return await query.Where(where).FirstOrDefaultAsync();
     }
-    public T GetOne<T>(Expression<Func<T, bool>> where, params string[] includes) where T : Entity
+    public async Task<T> GetOneAsync<T>(Expression<Func<T, bool>> where, params string[] includes) where T : Entity
     {
         var query = _db.Set<T>().AsNoTracking();
         foreach (var include in includes)
             query = query.Include(include);
-        return query.Where(where).FirstOrDefault();
+        return await query.Where(where).FirstOrDefaultAsync();
     }
 
-    public List<T> GetAll<T>() where T : Entity
+    public async Task<List<T>> GetAllAsync<T>() where T : Entity
     {
-        return _db.Set<T>()
+        return await _db.Set<T>()
             .AsNoTracking()
             .OrderByDescending(e => e.CreatedAt)
-            .ToList();
+            .ToListAsync();
     }
-    public List<T> GetList<T>(Expression<Func<T, bool>> where) where T : Entity
+    public async Task<List<T>> GetListAsync<T>(Expression<Func<T, bool>> where) where T : Entity
     {
-        return _db.Set<T>()
+        return await _db.Set<T>()
             .AsNoTracking()
             .Where(where)
             .OrderByDescending(e => e.CreatedAt)
-            .ToList();
+            .ToListAsync();
     }
-    public List<T> GetList<T>(Expression<Func<T, bool>> where, params Expression<Func<T, object>>[] includes) where T : Entity
+    public async Task<List<T>> GetListAsync<T>(Expression<Func<T, bool>> where, params Expression<Func<T, object>>[] includes) where T : Entity
     {
         var query = _db.Set<T>().AsNoTracking();
         foreach (var include in includes)
             query = query.Include(include);
-        return query
+        return await query
             .Where(where)
             .OrderByDescending(e => e.CreatedAt)
-            .ToList();
+            .ToListAsync();
     }
-    public List<T> GetList<T>(Expression<Func<T, bool>> where, params string[] includes) where T : Entity
+    public async Task<List<T>> GetListAsync<T>(Expression<Func<T, bool>> where, params string[] includes) where T : Entity
     {
         var query = _db.Set<T>().AsNoTracking();
         foreach (var include in includes)
             query = query.Include(include);
-        return query
+        return await query
             .Where(where)
             .OrderByDescending(e => e.CreatedAt)
-            .ToList();
+            .ToListAsync();
     }
 
-    public PageResult<T> GetPage<T>(IQueryable<T> query, int pageSize = 10, int pageNumber = 1) where T : Entity
+    public async Task<PageResult<T>> GetPageAsync<T>(IQueryable<T> query, int pageSize = 10, int pageNumber = 1) where T : Entity
     {
-        var count = query.Count();
+        var count = await query.CountAsync();
         return new PageResult<T>
         {
-            PageItems = query
+            PageItems = await query
                 .Skip(pageSize * (pageNumber - 1))
                 .Take(pageSize)
                 .OrderByDescending(e => e.CreatedAt)
-                .ToList(),
+                .ToListAsync(),
             TotalItems = count,
             TotalPages = (int) Math.Ceiling((decimal) count / pageSize),
         };
     }
 
-    public int Count<T>() where T : Entity
+    public async Task<int> CountAsync<T>() where T : Entity
     {
-        return _db.Set<T>().Count();
+        return await _db.Set<T>().CountAsync();
     }
-    public int Count<T>(Expression<Func<T, bool>> where) where T : Entity
+    public async Task<int> CountAsync<T>(Expression<Func<T, bool>> where) where T : Entity
     {
-        return _db.Set<T>().Count(where);
+        return await _db.Set<T>().CountAsync(where);
     }
 
     public IQueryable<T> GetQuery<T>() where T : Entity
@@ -173,9 +174,7 @@ public class DBService : IDBService
     }
     public IQueryable<T> GetQuery<T>(Expression<Func<T, bool>> where) where T : Entity
     {
-        return _db.Set<T>()
-            .AsNoTracking()
-            .Where(where);
+        return _db.Set<T>().AsNoTracking().Where(where);
     }
     #endregion
 

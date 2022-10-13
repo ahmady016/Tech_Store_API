@@ -36,34 +36,34 @@ public class AddManyModelsCommandHandler : IRequestHandler<AddManyModelsCommand,
         // get all titles
         var titles = command.NewModels.Select(e => e.Title).ToList();
         // check if any title are existed in db then reject the command and return error
-        var existedModels = _dbService.GetList<Model>(p => titles.Contains(p.Title));
+        var existedModels = await _dbService.GetListAsync<Model>(p => titles.Contains(p.Title));
         if (existedModels.Count > 0)
         {
             _errorMessage = $"Some of NewModels Titles already existed.";
             _logger.LogError(_errorMessage);
-            throw new HttpRequestException(_errorMessage, null, HttpStatusCode.Conflict);
+            Results.Conflict(_errorMessage);
         }
 
         // get all productIds
         var productIds = command.NewModels.Select(e => e.ProductId).ToList();
         // check if any ProductId is not existed in db then reject the command and return error
-        var existedProducts = _dbService.GetList<Product>(p => productIds.Contains(p.Id));
+        var existedProducts = await _dbService.GetListAsync<Product>(p => productIds.Contains(p.Id));
         if (existedProducts.Count != command.NewModels.Count)
         {
             _errorMessage = $"one or more ProductId are not existed.";
             _logger.LogError(_errorMessage);
-            throw new HttpRequestException(_errorMessage, null, HttpStatusCode.NotFound);
+            Results.NotFound(_errorMessage);
         }
 
         // get all brandIds
         var brandIds = command.NewModels.Select(e => e.BrandId).ToList();
         // check if any BrandId is not existed in db then reject the command and return error
-        var existedBrands = _dbService.GetList<Brand>(p => brandIds.Contains(p.Id));
+        var existedBrands = await _dbService.GetListAsync<Brand>(p => brandIds.Contains(p.Id));
         if (existedBrands.Count != command.NewModels.Count)
         {
             _errorMessage = $"one or more BrandId are not existed.";
             _logger.LogError(_errorMessage);
-            throw new HttpRequestException(_errorMessage, null, HttpStatusCode.NotFound);
+            Results.NotFound(_errorMessage);
         }
 
         // do the normal Add action

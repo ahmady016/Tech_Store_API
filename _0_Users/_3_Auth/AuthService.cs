@@ -62,7 +62,7 @@ public class AuthService : IAuthService
     }
     public async Task RevokeAllUserRefreshTokensAsync(string userId)
     {
-        var allUserTokens = _dbService.GetList<RefreshToken>(token => token.UserId == userId);
+        var allUserTokens = await _dbService.GetListAsync<RefreshToken>(token => token.UserId == userId);
         if (allUserTokens.Count > 0)
         {
             allUserTokens.ForEach(token => RevokeToken(token, $"Attempted to reuse a revoked token"));

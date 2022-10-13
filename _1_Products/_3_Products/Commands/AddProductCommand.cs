@@ -1,5 +1,4 @@
 using System.ComponentModel.DataAnnotations;
-using System.Net;
 using MediatR;
 
 using DB;
@@ -45,12 +44,12 @@ public class AddProductCommandHandler : IRequestHandler<AddProductCommand, IResu
     )
     {
         // check if the title are existed in db then reject the command and return error
-        var existedProduct = _dbService.GetOne<Product>(p => p.Title == command.Title);
+        var existedProduct = await _dbService.GetOneAsync<Product>(p => p.Title == command.Title);
         if (existedProduct is not null)
         {
             _errorMessage = $"Product Title already existed.";
             _logger.LogError(_errorMessage);
-            throw new HttpRequestException(_errorMessage, null, HttpStatusCode.Conflict);
+            return Results.Conflict(_errorMessage);
         }
 
         // do the normal Add action

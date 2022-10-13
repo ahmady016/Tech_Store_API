@@ -36,7 +36,7 @@ public class AddManyBrandsCommandHandler : IRequestHandler<AddManyBrandsCommand,
         // get all inputs titles
         var titles = command.NewBrands.Select(e => e.Title).ToList();
         // check if any title are existed in db then reject the command and return error
-        var existedBrands = _dbService.GetList<Brand>(p => titles.Contains(p.Title));
+        var existedBrands = await _dbService.GetListAsync<Brand>(p => titles.Contains(p.Title));
         if (existedBrands.Count > 0)
         {
             _errorMessage = $"Some of NewBrands Titles already existed.";

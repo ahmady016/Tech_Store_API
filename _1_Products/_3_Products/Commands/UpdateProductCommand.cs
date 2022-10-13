@@ -32,17 +32,17 @@ public class UpdateProductCommandHandler : IRequestHandler<UpdateProductCommand,
     )
     {
         // get existed db item
-        var oldProduct = _crudService.GetById<Product>(command.Id);
+        var oldProduct = await _crudService.GetByIdAsync<Product>(command.Id);
         // if title changed
         if(oldProduct.Title != command.ModifiedEntity.Title)
         {
             // check if the title are existed in db then reject the command and return error
-            var productWithSameTitle = _dbService.GetOne<Product>(e => e.Title == command.ModifiedEntity.Title);
+            var productWithSameTitle = await _dbService.GetOneAsync<Product>(e => e.Title == command.ModifiedEntity.Title);
             if (productWithSameTitle is not null)
             {
                 _errorMessage = $"Product Title is already existed.";
                 _logger.LogError(_errorMessage);
-                throw new HttpRequestException(_errorMessage, null, HttpStatusCode.Conflict);
+                return Results.Conflict(_errorMessage);
             }
         }
 

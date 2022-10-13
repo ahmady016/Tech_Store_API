@@ -21,17 +21,16 @@ public class SearchModelsQueryHandler : IRequestHandler<SearchModelsQuery, IResu
         CancellationToken cancellationToken
     )
     {
-        IResult result;
         if (request.PageSize is not null && request.PageNumber is not null)
-            result = Results.Ok(
-                _crudService.QueryPage<Model, ModelDto>(request.Where, request.Select, request.OrderBy, (int)request.PageSize, (int)request.PageNumber)
-            );
+        {
+            var page = await _crudService.QueryPageAsync<Model, ModelDto>(request.Where, request.Select, request.OrderBy, (int)request.PageSize, (int)request.PageNumber);
+            return Results.Ok(page);
+        }
         else
-            result = Results.Ok(
-                _crudService.Query<Model, ModelDto>(request.Where, request.Select, request.OrderBy)
-            );
-
-        return await Task.FromResult(result);
+        {
+            var list = await _crudService.QueryAsync<Model, ModelDto>(request.Where, request.Select, request.OrderBy);
+            return Results.Ok(list);
+        }
     }
 
 }

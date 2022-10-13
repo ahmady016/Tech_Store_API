@@ -20,13 +20,16 @@ public class ListModelsQueryHandler : IRequestHandler<ListModelsQuery, IResult> 
         CancellationToken cancellationToken
     )
     {
-        IResult result;
         if (request.PageSize is not null && request.PageNumber is not null)
-            result = Results.Ok(_crudService.ListPage<Model, ModelDto>(request.ListType, (int)request.PageSize, (int)request.PageNumber));
+        {
+            var page = await _crudService.ListPageAsync<Model, ModelDto>(request.ListType, (int)request.PageSize, (int)request.PageNumber);
+            return Results.Ok(page);
+        }
         else
-            result = Results.Ok(_crudService.List<Model, ModelDto>(request.ListType));
-
-        return await Task.FromResult(result);
+        {
+            var list = await _crudService.ListAsync<Model, ModelDto>(request.ListType);
+            return Results.Ok(list);
+        }
     }
 
 }

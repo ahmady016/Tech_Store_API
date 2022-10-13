@@ -21,8 +21,8 @@ public class FindBrandQueryHandler : IRequestHandler<FindBrandQuery, IResult>
         CancellationToken cancellationToken
     )
     {
-        var existedBrand = _crudService.Find<Brand, BrandDto>(request.Id);
-        return await Task.FromResult(Results.Ok(existedBrand));
+        var existedBrand = await _crudService.FindAsync<Brand, BrandDto>(request.Id);
+        return Results.Ok(existedBrand);
     }
 
 }

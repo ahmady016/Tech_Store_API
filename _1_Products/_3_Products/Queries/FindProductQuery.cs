@@ -21,8 +21,8 @@ public class FindProductQueryHandler : IRequestHandler<FindProductQuery, IResult
         CancellationToken cancellationToken
     )
     {
-        var existedProduct = _crudService.Find<Product, ProductDto>(request.Id);
-        return await Task.FromResult(Results.Ok(existedProduct));
+        var existedProduct = await _crudService.FindAsync<Product, ProductDto>(request.Id);
+        return Results.Ok(existedProduct);
     }
 
 }

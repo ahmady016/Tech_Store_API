@@ -20,13 +20,16 @@ public class ListProductsQueryHandler : IRequestHandler<ListProductsQuery, IResu
         CancellationToken cancellationToken
     )
     {
-        IResult result;
         if (request.PageSize is not null && request.PageNumber is not null)
-            result = Results.Ok(_crudService.ListPage<Product, ProductDto>(request.ListType, (int)request.PageSize, (int)request.PageNumber));
+        {
+            var page = await _crudService.ListPageAsync<Product, ProductDto>(request.ListType, (int)request.PageSize, (int)request.PageNumber);
+            return Results.Ok(page);
+        }
         else
-            result = Results.Ok(_crudService.List<Product, ProductDto>(request.ListType));
-
-        return await Task.FromResult(result);
+        {
+            var list = await _crudService.ListAsync<Product, ProductDto>(request.ListType);
+            return Results.Ok(list);
+        }
     }
 
 }

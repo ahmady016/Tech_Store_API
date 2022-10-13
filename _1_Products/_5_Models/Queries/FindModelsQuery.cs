@@ -22,8 +22,8 @@ public class FindModelsQueryHandler : IRequestHandler<FindModelsQuery, IResult> 
         CancellationToken cancellationToken
     )
     {
-        var models = _crudService.FindList<Model, ModelDto>(request.Ids);
-        return await Task.FromResult(Results.Ok(models));
+        var models = await _crudService.FindListAsync<Model, ModelDto>(request.Ids);
+        return Results.Ok(models);
     }
 
 }

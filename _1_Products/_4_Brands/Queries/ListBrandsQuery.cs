@@ -20,13 +20,16 @@ public class ListBrandsQueryHandler : IRequestHandler<ListBrandsQuery, IResult> 
         CancellationToken cancellationToken
     )
     {
-        IResult result;
         if (request.PageSize is not null && request.PageNumber is not null)
-            result = Results.Ok(_crudService.ListPage<Brand, BrandDto>(request.ListType, (int)request.PageSize, (int)request.PageNumber));
+        {
+            var page = await _crudService.ListPageAsync<Brand, BrandDto>(request.ListType, (int)request.PageSize, (int)request.PageNumber);
+            return Results.Ok(page);
+        }
         else
-            result = Results.Ok(_crudService.List<Brand, BrandDto>(request.ListType));
-
-        return await Task.FromResult(result);
+        {
+            var list = await _crudService.ListAsync<Brand, BrandDto>(request.ListType);
+            return Results.Ok(list);
+        }
     }
 
 }

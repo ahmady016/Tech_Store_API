@@ -47,12 +47,12 @@ public class AddBrandCommandHandler : IRequestHandler<AddBrandCommand, IResult>
     )
     {
         // check if the title are existed in db then reject the command and return error
-        var existedBrand = _dbService.GetOne<Brand>(p => p.Title == command.Title);
+        var existedBrand = await _dbService.GetOneAsync<Brand>(p => p.Title == command.Title);
         if (existedBrand is not null)
         {
             _errorMessage = $"Brand Title already existed.";
             _logger.LogError(_errorMessage);
-            throw new HttpRequestException(_errorMessage, null, HttpStatusCode.Conflict);
+            return Results.Conflict(_errorMessage);
         }
 
         // do the normal Add action

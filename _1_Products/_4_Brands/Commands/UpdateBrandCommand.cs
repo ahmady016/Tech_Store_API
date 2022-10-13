@@ -32,17 +32,17 @@ public class UpdateBrandCommandHandler : IRequestHandler<UpdateBrandCommand, IRe
     )
     {
         // get existed db item
-        var oldBrand = _crudService.GetById<Brand>(command.Id);
+        var oldBrand = await _crudService.GetByIdAsync<Brand>(command.Id);
         // if title changed
         if(oldBrand.Title != command.ModifiedEntity.Title)
         {
             // check if the title are existed in db then reject the command and return error
-            var brandWithSameTitle = _dbService.GetOne<Brand>(e => e.Title == command.ModifiedEntity.Title);
+            var brandWithSameTitle = await _dbService.GetOneAsync<Brand>(e => e.Title == command.ModifiedEntity.Title);
             if (brandWithSameTitle is not null)
             {
                 _errorMessage = $"Brand Title is already existed.";
                 _logger.LogError(_errorMessage);
-                throw new HttpRequestException(_errorMessage, null, HttpStatusCode.Conflict);
+                return Results.Conflict(_errorMessage);
             }
         }
 

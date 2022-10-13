@@ -34,7 +34,7 @@ public class UpdateManyModelsCommandHandler : IRequestHandler<UpdateManyModelsCo
     )
     {
         // get oldModels from db
-        var oldModels = _crudService.GetByIds<Model>(command.ModifiedModels.Select(p => p.Id).ToList());
+        var oldModels = await _crudService.GetByIdsAsync<Model>(command.ModifiedModels.Select(p => p.Id).ToList());
 
         // get existedModelsTitles and modifiedModelsTitles and changedModelsTitles
         var existedModelsTitles = oldModels.Select(p => p.Title);
@@ -45,12 +45,12 @@ public class UpdateManyModelsCommandHandler : IRequestHandler<UpdateManyModelsCo
         // if any titles changed check if already existed in db and then reject all inputs
         if (changedModelsTitles.Count > 0)
         {
-            var modelsWithSameTitle = _dbService.GetList<Model>(p => changedModelsTitles.Contains(p.Title));
+            var modelsWithSameTitle = await _dbService.GetListAsync<Model>(p => changedModelsTitles.Contains(p.Title));
             if (modelsWithSameTitle.Count > 0)
             {
                 _errorMessage = $"Models List was rejected, Some Titles are already existed.";
                 _logger.LogError(_errorMessage);
-                throw new HttpRequestException(_errorMessage, null, HttpStatusCode.Conflict);
+                Results.Conflict(_errorMessage);
             }
         }
 
@@ -63,12 +63,12 @@ public class UpdateManyModelsCommandHandler : IRequestHandler<UpdateManyModelsCo
         // if any ProductId changed check if it is not existed in db and then reject all inputs
         if (changedProductIds.Count > 0)
         {
-            var existedProducts = _dbService.GetList<Product>(p => changedProductIds.Contains(p.Id));
+            var existedProducts = await _dbService.GetListAsync<Product>(p => changedProductIds.Contains(p.Id));
             if (existedProducts.Count != changedProductIds.Count)
             {
                 _errorMessage = $"one or more ProductId are not existed.";
                 _logger.LogError(_errorMessage);
-                throw new HttpRequestException(_errorMessage, null, HttpStatusCode.NotFound);
+                Results.NotFound(_errorMessage);
             }
         }
 
@@ -81,12 +81,12 @@ public class UpdateManyModelsCommandHandler : IRequestHandler<UpdateManyModelsCo
         // if any BrandId changed check if it is not existed in db and then reject all inputs
         if (changedBrandIds.Count > 0)
         {
-            var existedBrands = _dbService.GetList<Brand>(p => changedBrandIds.Contains(p.Id));
+            var existedBrands = await _dbService.GetListAsync<Brand>(p => changedBrandIds.Contains(p.Id));
             if (existedBrands.Count != changedBrandIds.Count)
             {
                 _errorMessage = $"one or more BrandId are not existed.";
                 _logger.LogError(_errorMessage);
-                throw new HttpRequestException(_errorMessage, null, HttpStatusCode.NotFound);
+                Results.NotFound(_errorMessage);
             }
         }
 

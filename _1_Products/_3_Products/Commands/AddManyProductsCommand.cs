@@ -36,12 +36,12 @@ public class AddManyProductsCommandHandler : IRequestHandler<AddManyProductsComm
         // get all inputs titles
         var titles = command.NewProducts.Select(e => e.Title).ToList();
         // check if any title are existed in db then reject the command and return error
-        var existedProducts = _dbService.GetList<Product>(p => titles.Contains(p.Title));
+        var existedProducts = await _dbService.GetListAsync<Product>(p => titles.Contains(p.Title));
         if (existedProducts.Count > 0)
         {
             _errorMessage = $"Some of NewProducts Titles already existed.";
             _logger.LogError(_errorMessage);
-            throw new HttpRequestException(_errorMessage, null, HttpStatusCode.Conflict);
+            Results.Conflict(_errorMessage);
         }
 
         // do the normal Add action
