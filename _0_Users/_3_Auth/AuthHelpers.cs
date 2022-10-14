@@ -1,4 +1,5 @@
 ﻿using System.Text;
+using System.Net;
 using System.Security.Cryptography;
 using System.IdentityModel.Tokens.Jwt;
 using Microsoft.IdentityModel.Tokens;
@@ -27,9 +28,14 @@ public class TokensResponse
 public static class AuthHelpers
 {
     private static IConfiguration _config;
-    public static void Initialize(IConfiguration Configuration)
+    private static ILogger<User> _logger;
+    public static void Initialize(
+        IConfiguration Configuration,
+        ILogger<User> logger
+    )
     {
         _config = Configuration;
+        _logger = logger;
     }
 
     private static string TokenIssuer => _config["JWT:Issuer"];
@@ -37,7 +43,7 @@ public static class AuthHelpers
     private static byte[] TokenSecret => Encoding.UTF8.GetBytes(_config["JWT:Secret"]);
     private static int AccessTokenValidityInMinutes => int.Parse(_config["JWT:AccessTokenValidityInMinutes"]);
     private static int RefreshTokenValidityInDays => int.Parse(_config["JWT:RefreshTokenValidityInDays"]);
-
+    private static string _errorMessage;
     public static TokenValidationParameters GetTokenValidationOptions(bool validateLifetime)
     {
         return new TokenValidationParameters
@@ -57,7 +63,11 @@ public static class AuthHelpers
         var principal = new JwtSecurityTokenHandler().ValidateToken(token, tokenValidationParameters, out SecurityToken securityToken);
 
         if (securityToken is not JwtSecurityToken jwtSecurityToken || !jwtSecurityToken.Header.Alg.Equals(SecurityAlgorithms.HmacSha256, StringComparison.InvariantCultureIgnoreCase))
-            throw new SecurityTokenException("Invalid token");
+        {
+            _errorMessage = "Invalid token !!!";
+            _logger.LogError(_errorMessage);
+            throw new HttpRequestException(_errorMessage, null, HttpStatusCode.Unauthorized);
+        }
 
         return principal.Claims.ToList();
     }

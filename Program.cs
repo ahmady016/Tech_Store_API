@@ -25,8 +25,6 @@ builder.Logging.AddSerilog(logger);
 #endregion
 
 #region Add services to the container:
-// Pass Configuration to AuthHelpers static class
-AuthHelpers.Initialize(builder.Configuration);
 
 // Register the db context
 var dbConnection = builder.Configuration.GetConnectionString("Default");
@@ -117,6 +115,10 @@ builder.Services.AddSwaggerGen();
 
 // Build the Web Server
 var app = builder.Build();
+
+// Pass Configuration to AuthHelpers static class
+var _logger = app.Services.GetRequiredService<ILogger<User>>();
+AuthHelpers.Initialize(builder.Configuration, _logger);
 
 #region Configure the HTTP request pipeline:
 
