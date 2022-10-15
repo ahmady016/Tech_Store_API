@@ -71,6 +71,9 @@ builder.Services.AddAuthentication(options =>
   });
 builder.Services.AddAuthorization();
 
+// Register IHttpContextAccessor to get access to the HttpContext.
+builder.Services.AddHttpContextAccessor();
+
 // Register EmailService
 builder.Services.AddScoped<IEmailService, EmailService>();
 builder.Services.Configure<MailOptions>(builder.Configuration.GetSection("SMTP"));
