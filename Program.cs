@@ -10,7 +10,6 @@ using DB;
 using Common;
 using Entities;
 using Auth;
-using Admin;
 
 // Create the Web Server Builder
 var builder = WebApplication.CreateBuilder(args);
@@ -75,8 +74,8 @@ builder.Services.AddAuthorization();
 builder.Services.AddHttpContextAccessor();
 
 // Register EmailService
-builder.Services.AddScoped<IEmailService, EmailService>();
 builder.Services.Configure<MailOptions>(builder.Configuration.GetSection("SMTP"));
+builder.Services.AddScoped<IEmailService, EmailService>();
 
 // Register AuthService
 builder.Services.AddScoped<IAuthService, AuthService>();
@@ -92,6 +91,7 @@ builder.Services.AddScoped<IDBCommandService, DBCommandService>();
 // Register AutoMapper
 var assemblies = AppDomain.CurrentDomain.GetAssemblies();
 builder.Services.AddAutoMapper(assemblies);
+
 // Register MediatR
 var assembly = AppDomain.CurrentDomain.Load("Tech_Store_API");
 builder.Services.AddMediatR(x => x.AsScoped(), assembly);
@@ -158,5 +158,4 @@ app.MapFallbackToFile("index.html");
 
 // run the Web Server
 app.Run();
-
 #endregion
