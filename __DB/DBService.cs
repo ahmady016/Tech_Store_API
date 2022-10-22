@@ -28,37 +28,37 @@ public interface IDBService
     #endregion
 
     #region Commands [Add-Update-Delete]
-    T Add<T>(T item) where T : Entity;
-    void AddRange<T>(List<T> range) where T : Entity;
-    List<T> AddAndGetRange<T>(List<T> range) where T : Entity;
+    void Add<T>(T item, string createdBy = "app_dev") where T : Entity;
+    void AddRange<T>(List<T> range, string createdBy = "app_dev") where T : Entity;
+    T AddAndGetOne<T>(T item, string createdBy = "app_dev") where T : Entity;
+    List<T> AddAndGetRange<T>(List<T> range, string createdBy = "app_dev") where T : Entity;
 
-    T Update<T>(T item) where T : Entity;
-    void UpdateRange<T>(List<T> range) where T : Entity;
-    List<T> UpdateAndGetRange<T>(List<T> range) where T : Entity;
+    void Update<T>(T item, string modifiedBy = "app_dev") where T : Entity;
+    void UpdateRange<T>(List<T> range, string modifiedBy = "app_dev") where T : Entity;
 
-    void Activate<T>(T item) where T : Entity;
-    void ActivateRange<T>(List<T> range) where T : Entity;
+    void Activate<T>(T item, string modifiedBy = "app_dev") where T : Entity;
+    void ActivateRange<T>(List<T> range, string modifiedBy = "app_dev") where T : Entity;
 
-    void Disable<T>(T item) where T : Entity;
-    void DisableRange<T>(List<T> range) where T : Entity;
+    void Disable<T>(T item, string modifiedBy = "app_dev") where T : Entity;
+    void DisableRange<T>(List<T> range, string modifiedBy = "app_dev") where T : Entity;
 
-    void Delete<T>(T item) where T : Entity;
-    void DeleteRange<T>(List<T> range) where T : Entity;
+    void Delete<T>(T item, string modifiedBy = "app_dev") where T : Entity;
+    void DeleteRange<T>(List<T> range, string modifiedBy = "app_dev") where T : Entity;
 
-    void Restore<T>(T item) where T : Entity;
-    void RestoreRange<T>(List<T> range) where T : Entity;
+    void Restore<T>(T item, string modifiedBy = "app_dev") where T : Entity;
+    void RestoreRange<T>(List<T> range, string modifiedBy = "app_dev") where T : Entity;
 
-    bool GetOneAndDelete<T>(Expression<Func<T, bool>> where) where T : Entity;
-    bool GetListAndDelete<T>(Expression<Func<T, bool>> where) where T : Entity;
+    Task<bool> GetOneAndDeleteAsync<T>(Expression<Func<T, bool>> where, string modifiedBy = "app_dev") where T : Entity;
+    Task<bool> GetListAndDeleteAsync<T>(Expression<Func<T, bool>> where, string modifiedBy = "app_dev") where T : Entity;
 
-    bool GetOneAndRestore<T>(Expression<Func<T, bool>> where) where T : Entity;
-    bool GetListAndRestore<T>(Expression<Func<T, bool>> where) where T : Entity;
+    Task<bool> GetOneAndRestoreAsync<T>(Expression<Func<T, bool>> where, string modifiedBy = "app_dev") where T : Entity;
+    Task<bool> GetListAndRestoreAsync<T>(Expression<Func<T, bool>> where, string modifiedBy = "app_dev") where T : Entity;
 
     void HardDelete<T>(T item) where T : Entity;
     void HardDeleteRange<T>(List<T> range) where T : Entity;
 
-    bool GetOneAndHardDelete<T>(Expression<Func<T, bool>> where) where T : Entity;
-    bool GetListAndHardDelete<T>(Expression<Func<T, bool>> where) where T : Entity;
+    Task<bool> GetOneAndHardDeleteAsync<T>(Expression<Func<T, bool>> where) where T : Entity;
+    Task<bool> GetListAndHardDeleteAsync<T>(Expression<Func<T, bool>> where) where T : Entity;
 
     #endregion
 
@@ -179,153 +179,157 @@ public class DBService : IDBService
     #endregion
 
     #region Commands [Add-Update-Delete]
-    public T Add<T>(T item) where T : Entity
+    public void Add<T>(T item, string createdBy = "app_dev") where T : Entity
     {
-        return _db.Set<T>().Add(item).Entity;
+        item.CreatedAt= DateTime.Now;
+        item.CreatedBy = createdBy;
+        _db.Set<T>().Add(item);
     }
-    public void AddRange<T>(List<T> range) where T : Entity
+    public void AddRange<T>(List<T> range, string createdBy = "app_dev") where T : Entity
     {
+        range.ForEach(item => {
+            item.CreatedAt= DateTime.Now;
+            item.CreatedBy = createdBy;
+        });
         _db.Set<T>().AddRange(range);
     }
-    public List<T> AddAndGetRange<T>(List<T> range) where T : Entity
+    public T AddAndGetOne<T>(T item, string createdBy = "app_dev") where T : Entity
     {
-        return range.Select(obj => _db.Set<T>().Add(obj).Entity)
-            .ToList();
+        item.CreatedAt= DateTime.Now;
+        item.CreatedBy = createdBy;
+        return _db.Set<T>().Add(item).Entity;
+    }
+    public List<T> AddAndGetRange<T>(List<T> range, string createdBy = "app_dev") where T : Entity
+    {
+        range.ForEach(item => {
+            item.CreatedAt= DateTime.Now;
+            item.CreatedBy = createdBy;
+        });
+        return range.Select(obj => _db.Set<T>().Add(obj).Entity).ToList();
     }
 
-    public T Update<T>(T item) where T : Entity
+    public void Update<T>(T item, string modifiedBy = "app_dev") where T : Entity
     {
-        item.ModifiedBy = "app_dev";
+        item.ModifiedBy = modifiedBy;
         item.ModifiedAt = DateTime.Now;
         _db.Entry(item).State = EntityState.Modified;
-        return item;
     }
-    public void UpdateRange<T>(List<T> range) where T : Entity
+    public void UpdateRange<T>(List<T> range, string modifiedBy = "app_dev") where T : Entity
     {
         range.ForEach(item =>
         {
-            item.ModifiedBy = "app_dev";
-            item.ModifiedAt = DateTime.UtcNow;
-            _db.Entry(item).State = EntityState.Modified;
-        });
-    }
-    public List<T> UpdateAndGetRange<T>(List<T> range) where T : Entity
-    {
-        range.ForEach(item =>
-        {
-            item.ModifiedBy = "app_dev";
+            item.ModifiedBy = modifiedBy;
             item.ModifiedAt = DateTime.Now;
             _db.Entry(item).State = EntityState.Modified;
         });
-        return range;
     }
 
-    public void Activate<T>(T item) where T : Entity
+    public void Activate<T>(T item, string modifiedBy = "app_dev") where T : Entity
     {
         item.IsActive = true;
-        item.ActivatedBy = "app_dev";
+        item.ActivatedBy = modifiedBy;
         item.ActivatedAt = DateTime.Now;
         _db.Entry(item).State = EntityState.Modified;
     }
-    public void ActivateRange<T>(List<T> range) where T : Entity
+    public void ActivateRange<T>(List<T> range, string modifiedBy = "app_dev") where T : Entity
     {
         range.ForEach(item =>
         {
             item.IsActive = true;
-            item.ActivatedBy = "app_dev";
+            item.ActivatedBy = modifiedBy;
             item.ActivatedAt = DateTime.Now;
             _db.Entry(item).State = EntityState.Modified;
         });
     }
-    public void Disable<T>(T item) where T : Entity
+    public void Disable<T>(T item, string modifiedBy = "app_dev") where T : Entity
     {
         item.IsActive = false;
-        item.DisabledBy = "app_dev";
+        item.DisabledBy = modifiedBy;
         item.DisabledAt = DateTime.Now;
         _db.Entry(item).State = EntityState.Modified;
     }
-    public void DisableRange<T>(List<T> range) where T : Entity
+    public void DisableRange<T>(List<T> range, string modifiedBy = "app_dev") where T : Entity
     {
         range.ForEach(item =>
         {
             item.IsActive = false;
-            item.DisabledBy = "app_dev";
+            item.DisabledBy = modifiedBy;
             item.DisabledAt = DateTime.Now;
             _db.Entry(item).State = EntityState.Modified;
         });
     }
 
-    public void Delete<T>(T item) where T : Entity
+    public void Delete<T>(T item, string modifiedBy = "app_dev") where T : Entity
     {
         item.IsDeleted = true;
-        item.DeletedBy = "app_dev";
+        item.DeletedBy = modifiedBy;
         item.DeletedAt = DateTime.Now;
         _db.Entry(item).State = EntityState.Modified;
     }
-    public void DeleteRange<T>(List<T> range) where T : Entity
+    public void DeleteRange<T>(List<T> range, string modifiedBy = "app_dev") where T : Entity
     {
         range.ForEach(item =>
         {
             item.IsDeleted = true;
-            item.DeletedBy = "app_dev";
+            item.DeletedBy = modifiedBy;
             item.DeletedAt = DateTime.Now;
             _db.Entry(item).State = EntityState.Modified;
         });
     }
-    public void Restore<T>(T item) where T : Entity
+    public void Restore<T>(T item, string modifiedBy = "app_dev") where T : Entity
     {
         item.IsDeleted = false;
-        item.RestoredBy = "app_dev";
+        item.RestoredBy = modifiedBy;
         item.RestoredAt = DateTime.Now;
         _db.Entry(item).State = EntityState.Modified;
     }
-    public void RestoreRange<T>(List<T> range) where T : Entity
+    public void RestoreRange<T>(List<T> range, string modifiedBy = "app_dev") where T : Entity
     {
         range.ForEach(item =>
         {
             item.IsDeleted = false;
-            item.RestoredBy = "app_dev";
+            item.RestoredBy = modifiedBy;
             item.RestoredAt = DateTime.Now;
             _db.Entry(item).State = EntityState.Modified;
         });
     }
 
-    public bool GetOneAndDelete<T>(Expression<Func<T, bool>> where) where T : Entity
+    public async Task<bool> GetOneAndDeleteAsync<T>(Expression<Func<T, bool>> where, string modifiedBy = "app_dev") where T : Entity
     {
-        var item = _db.Set<T>().Where(where).FirstOrDefault();
+        var item = await _db.Set<T>().Where(where).FirstOrDefaultAsync();
         if (item != null)
         {
-            Delete<T>(item);
+            Delete<T>(item, modifiedBy);
             return true;
         }
         return false;
     }
-    public bool GetListAndDelete<T>(Expression<Func<T, bool>> where) where T : Entity
+    public async Task<bool> GetListAndDeleteAsync<T>(Expression<Func<T, bool>> where, string modifiedBy = "app_dev") where T : Entity
     {
-        var items = _db.Set<T>().Where(where).ToList();
-        if (items.Count != 0)
+        var items = await _db.Set<T>().Where(where).ToListAsync();
+        if (items.Count > 0)
         {
-            DeleteRange<T>(items);
+            DeleteRange<T>(items, modifiedBy);
             return true;
         }
         return false;
     }
-    public bool GetOneAndRestore<T>(Expression<Func<T, bool>> where) where T : Entity
+    public async Task<bool> GetOneAndRestoreAsync<T>(Expression<Func<T, bool>> where, string modifiedBy = "app_dev") where T : Entity
     {
-        var item = _db.Set<T>().Where(where).FirstOrDefault();
+        var item = await _db.Set<T>().Where(where).FirstOrDefaultAsync();
         if (item != null)
         {
-            Restore<T>(item);
+            Restore<T>(item, modifiedBy);
             return true;
         }
         return false;
     }
-    public bool GetListAndRestore<T>(Expression<Func<T, bool>> where) where T : Entity
+    public async Task<bool> GetListAndRestoreAsync<T>(Expression<Func<T, bool>> where, string modifiedBy = "app_dev") where T : Entity
     {
-        var items = _db.Set<T>().Where(where).ToList();
-        if (items.Count != 0)
+        var items = await _db.Set<T>().Where(where).ToListAsync();
+        if (items.Count > 0)
         {
-            RestoreRange<T>(items);
+            RestoreRange<T>(items, modifiedBy);
             return true;
         }
         return false;
@@ -339,24 +343,22 @@ public class DBService : IDBService
     {
         _db.Set<T>().RemoveRange(range);
     }
-    public bool GetOneAndHardDelete<T>(Expression<Func<T, bool>> where) where T : Entity
+    public async Task<bool> GetOneAndHardDeleteAsync<T>(Expression<Func<T, bool>> where) where T : Entity
     {
-        var set = _db.Set<T>();
-        T item = set.Where(where).FirstOrDefault();
+        var item = await _db.Set<T>().Where(where).FirstOrDefaultAsync();
         if (item != null)
         {
-            set.Remove(item);
+            HardDelete<T>(item);
             return true;
         }
         return false;
     }
-    public bool GetListAndHardDelete<T>(Expression<Func<T, bool>> where) where T : Entity
+    public async Task<bool> GetListAndHardDeleteAsync<T>(Expression<Func<T, bool>> where) where T : Entity
     {
-        var set = _db.Set<T>();
-        var items = set.Where(where).ToList();
-        if (items.Count != 0)
+        var items = await _db.Set<T>().Where(where).ToListAsync();
+        if (items.Count > 0)
         {
-            set.RemoveRange(items);
+            HardDeleteRange<T>(items);
             return true;
         }
         return false;

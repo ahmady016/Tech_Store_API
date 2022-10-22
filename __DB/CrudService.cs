@@ -195,16 +195,16 @@ public class CrudService : ICrudService
     public async Task<TDto> AddAsync<T, TDto, TCreateInput>(TCreateInput input) where T : Entity
     {
         var dbItem = _mapper.Map<T>(input);
-        var createdItem = _dbService.Add<T>(dbItem);
+        _dbService.Add<T>(dbItem);
         await _dbService.SaveChangesAsync();
-        return _mapper.Map<TDto>(createdItem);
+        return _mapper.Map<TDto>(dbItem);
     }
     public async Task<List<TDto>> AddManyAsync<T, TDto, TCreateInput>(List<TCreateInput> inputs) where T : Entity
     {
         var dbItems = _mapper.Map<List<T>>(inputs);
-        var createdItems = _dbService.AddAndGetRange<T>(dbItems);
+        _dbService.AddRange<T>(dbItems);
         await _dbService.SaveChangesAsync();
-        return _mapper.Map<List<TDto>>(createdItems);
+        return _mapper.Map<List<TDto>>(dbItems);
     }
 
     public async Task<TDto> UpdateAsync<T, TDto, TUpdate, TCommand>(TUpdate input, T oldItem = null) where T : Entity where TUpdate : UpdateCommand<TCommand> where TCommand : class
@@ -212,27 +212,27 @@ public class CrudService : ICrudService
         if(oldItem is null)
             oldItem = await GetByIdAsync<T>(input.Id);
 
-        var newItem = _mapper.Map<T>(input.ModifiedEntity);
-        FillNonInputValues(oldItem, newItem);
+        var modifiedItem = _mapper.Map<T>(input.ModifiedEntity);
+        FillNonInputValues(oldItem, modifiedItem);
 
-        var updatedItem = _dbService.Update<T>(newItem);
+        _dbService.Update<T>(modifiedItem);
         await _dbService.SaveChangesAsync();
 
-        return _mapper.Map<TDto>(updatedItem);
+        return _mapper.Map<TDto>(modifiedItem);
     }
     public async Task<List<TDto>> UpdateManyAsync<T, TDto, TUpdate, TCommand>(List<TUpdate> inputs, List<T> oldItems = null) where T : Entity where TUpdate : UpdateCommand<TCommand> where TCommand : class
     {
         if(oldItems is null)
             oldItems = await GetByIdsAsync<T>(inputs.Select(x => x.Id).ToList());
-        var newItems = _mapper.Map<List<T>>(inputs.Select(x => x.ModifiedEntity));
+        var modifiedItems = _mapper.Map<List<T>>(inputs.Select(x => x.ModifiedEntity));
 
         for (int i = 0; i < oldItems.Count; i++)
-            FillNonInputValues(oldItems[i], newItems[i]);
+            FillNonInputValues(oldItems[i], modifiedItems[i]);
 
-        var updatedItems = _dbService.UpdateAndGetRange<T>(newItems);
+        _dbService.UpdateRange<T>(modifiedItems);
         await _dbService.SaveChangesAsync();
 
-        return _mapper.Map<List<TDto>>(updatedItems);
+        return _mapper.Map<List<TDto>>(modifiedItems);
     }
 
     public async Task<bool> DeleteAsync<T>(Guid id) where T : Entity
