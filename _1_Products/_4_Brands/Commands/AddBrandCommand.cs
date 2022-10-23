@@ -1,10 +1,10 @@
 using System.ComponentModel.DataAnnotations;
-using System.Net;
 using MediatR;
 
 using DB;
 using Dtos;
 using Entities;
+using Auth;
 
 namespace Brands.Commands;
 
@@ -26,16 +26,19 @@ public class AddBrandCommand : IRequest<IResult>
 
 public class AddBrandCommandHandler : IRequestHandler<AddBrandCommand, IResult>
 {
+    private readonly IAuthService _authService;
     private readonly IDBService _dbService;
     private readonly ICrudService _crudService;
     private readonly ILogger<Brand> _logger;
     private string _errorMessage;
     public AddBrandCommandHandler(
+        IAuthService authService,
         IDBService dbService,
         ICrudService crudService,
         ILogger<Brand> logger
     )
     {
+        _authService = authService;
         _dbService = dbService;
         _crudService = crudService;
         _logger = logger;
@@ -56,7 +59,8 @@ public class AddBrandCommandHandler : IRequestHandler<AddBrandCommand, IResult>
         }
 
         // do the normal Add action
-        var createdBrand = await _crudService.AddAsync<Brand, BrandDto, AddBrandCommand>(command);
+        var loggedUserEmail = _authService.GetCurrentUserEmail();
+        var createdBrand = await _crudService.AddAsync<Brand, BrandDto, AddBrandCommand>(command, loggedUserEmail ?? "app_dev");
         return Results.Ok(createdBrand);
     }
 
