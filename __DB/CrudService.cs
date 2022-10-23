@@ -21,17 +21,17 @@ public interface ICrudService
     Task<TDto> FindAsync<T, TDto>(Guid id) where T : Entity;
     Task<List<TDto>> FindListAsync<T, TDto>(string ids) where T : Entity;
 
-    Task<TDto> AddAsync<T, TDto, TCreateInput>(TCreateInput input) where T : Entity;
-    Task<List<TDto>> AddManyAsync<T, TDto, TCreateInput>(List<TCreateInput> inputs) where T : Entity;
+    Task<TDto> AddAsync<T, TDto, TCreateInput>(TCreateInput input, string createdBy = "app_dev") where T : Entity;
+    Task<List<TDto>> AddManyAsync<T, TDto, TCreateInput>(List<TCreateInput> inputs, string createdBy = "app_dev") where T : Entity;
 
-    Task<TDto> UpdateAsync<T, TDto, TUpdate, TCommand>(TUpdate input, T oldItem = null) where T : Entity where TUpdate : UpdateCommand<TCommand> where TCommand : class;
-    Task<List<TDto>> UpdateManyAsync<T, TDto, TUpdate, TCommand>(List<TUpdate> inputs, List<T> oldItems = null) where T : Entity where TUpdate : UpdateCommand<TCommand> where TCommand : class;
+    Task<TDto> UpdateAsync<T, TDto, TUpdate, TCommand>(TUpdate input, T oldItem = null, string modifiedBy = "app_dev") where T : Entity where TUpdate : UpdateCommand<TCommand> where TCommand : class;
+    Task<List<TDto>> UpdateManyAsync<T, TDto, TUpdate, TCommand>(List<TUpdate> inputs, List<T> oldItems = null, string modifiedBy = "app_dev") where T : Entity where TUpdate : UpdateCommand<TCommand> where TCommand : class;
 
-    Task<bool> DeleteAsync<T>(Guid id) where T : Entity;
-    Task<bool> RestoreAsync<T>(Guid id) where T : Entity;
+    Task<bool> DeleteAsync<T>(Guid id, string modifiedBy = "app_dev") where T : Entity;
+    Task<bool> RestoreAsync<T>(Guid id, string modifiedBy = "app_dev") where T : Entity;
 
-    Task<bool> ActivateAsync<T>(Guid id) where T : Entity;
-    Task<bool> DisableAsync<T>(Guid id) where T : Entity;
+    Task<bool> ActivateAsync<T>(Guid id, string modifiedBy = "app_dev") where T : Entity;
+    Task<bool> DisableAsync<T>(Guid id, string modifiedBy = "app_dev") where T : Entity;
 }
 
 public class CrudService : ICrudService
@@ -192,22 +192,22 @@ public class CrudService : ICrudService
         return _mapper.Map<List<TDto>>(list);
     }
 
-    public async Task<TDto> AddAsync<T, TDto, TCreateInput>(TCreateInput input) where T : Entity
+    public async Task<TDto> AddAsync<T, TDto, TCreateInput>(TCreateInput input, string createdBy = "app_dev") where T : Entity
     {
         var dbItem = _mapper.Map<T>(input);
-        _dbService.Add<T>(dbItem);
+        _dbService.Add<T>(dbItem, createdBy);
         await _dbService.SaveChangesAsync();
         return _mapper.Map<TDto>(dbItem);
     }
-    public async Task<List<TDto>> AddManyAsync<T, TDto, TCreateInput>(List<TCreateInput> inputs) where T : Entity
+    public async Task<List<TDto>> AddManyAsync<T, TDto, TCreateInput>(List<TCreateInput> inputs, string createdBy = "app_dev") where T : Entity
     {
         var dbItems = _mapper.Map<List<T>>(inputs);
-        _dbService.AddRange<T>(dbItems);
+        _dbService.AddRange<T>(dbItems, createdBy);
         await _dbService.SaveChangesAsync();
         return _mapper.Map<List<TDto>>(dbItems);
     }
 
-    public async Task<TDto> UpdateAsync<T, TDto, TUpdate, TCommand>(TUpdate input, T oldItem = null) where T : Entity where TUpdate : UpdateCommand<TCommand> where TCommand : class
+    public async Task<TDto> UpdateAsync<T, TDto, TUpdate, TCommand>(TUpdate input, T oldItem = null, string modifiedBy = "app_dev") where T : Entity where TUpdate : UpdateCommand<TCommand> where TCommand : class
     {
         if(oldItem is null)
             oldItem = await GetByIdAsync<T>(input.Id);
@@ -215,12 +215,12 @@ public class CrudService : ICrudService
         var modifiedItem = _mapper.Map<T>(input.ModifiedEntity);
         FillNonInputValues(oldItem, modifiedItem);
 
-        _dbService.Update<T>(modifiedItem);
+        _dbService.Update<T>(modifiedItem, modifiedBy);
         await _dbService.SaveChangesAsync();
 
         return _mapper.Map<TDto>(modifiedItem);
     }
-    public async Task<List<TDto>> UpdateManyAsync<T, TDto, TUpdate, TCommand>(List<TUpdate> inputs, List<T> oldItems = null) where T : Entity where TUpdate : UpdateCommand<TCommand> where TCommand : class
+    public async Task<List<TDto>> UpdateManyAsync<T, TDto, TUpdate, TCommand>(List<TUpdate> inputs, List<T> oldItems = null, string modifiedBy = "app_dev") where T : Entity where TUpdate : UpdateCommand<TCommand> where TCommand : class
     {
         if(oldItems is null)
             oldItems = await GetByIdsAsync<T>(inputs.Select(x => x.Id).ToList());
@@ -229,38 +229,38 @@ public class CrudService : ICrudService
         for (int i = 0; i < oldItems.Count; i++)
             FillNonInputValues(oldItems[i], modifiedItems[i]);
 
-        _dbService.UpdateRange<T>(modifiedItems);
+        _dbService.UpdateRange<T>(modifiedItems, modifiedBy);
         await _dbService.SaveChangesAsync();
 
         return _mapper.Map<List<TDto>>(modifiedItems);
     }
 
-    public async Task<bool> DeleteAsync<T>(Guid id) where T : Entity
+    public async Task<bool> DeleteAsync<T>(Guid id, string modifiedBy = "app_dev") where T : Entity
     {
         var dbItem = await GetByIdAsync<T>(id);
-        _dbService.Delete<T>(dbItem);
+        _dbService.Delete<T>(dbItem, modifiedBy);
         await _dbService.SaveChangesAsync();
         return true;
     }
-    public async Task<bool> RestoreAsync<T>(Guid id) where T : Entity
+    public async Task<bool> RestoreAsync<T>(Guid id, string modifiedBy = "app_dev") where T : Entity
     {
         var dbItem = await GetByIdAsync<T>(id);
-        _dbService.Restore<T>(dbItem);
+        _dbService.Restore<T>(dbItem, modifiedBy);
         await _dbService.SaveChangesAsync();
         return true;
     }
 
-    public async Task<bool> ActivateAsync<T>(Guid id) where T : Entity
+    public async Task<bool> ActivateAsync<T>(Guid id, string modifiedBy = "app_dev") where T : Entity
     {
         var dbItem = await GetByIdAsync<T>(id);
-        _dbService.Activate<T>(dbItem);
+        _dbService.Activate<T>(dbItem, modifiedBy);
         await _dbService.SaveChangesAsync();
         return true;
     }
-    public async Task<bool> DisableAsync<T>(Guid id) where T : Entity
+    public async Task<bool> DisableAsync<T>(Guid id, string modifiedBy = "app_dev") where T : Entity
     {
         var dbItem = await GetByIdAsync<T>(id);
-        _dbService.Disable<T>(dbItem);
+        _dbService.Disable<T>(dbItem, modifiedBy);
         await _dbService.SaveChangesAsync();
         return true;
     }
