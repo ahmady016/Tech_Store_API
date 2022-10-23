@@ -1,26 +1,29 @@
-using System.Net;
 using MediatR;
 
 using DB;
 using Entities;
 using Dtos;
 using Common;
+using Auth;
 
 namespace Models.Commands;
 
 public class UpdateModelCommand : UpdateCommand<AddModelCommand> {}
 
 public class UpdateModelCommandHandler : IRequestHandler<UpdateModelCommand, IResult> {
+    private readonly IAuthService _authService;
     private readonly IDBService _dbService;
     private readonly ICrudService _crudService;
     private readonly ILogger<Model> _logger;
     private string _errorMessage;
     public UpdateModelCommandHandler(
+        IAuthService authService,
         IDBService dbService,
         ICrudService crudService,
         ILogger<Model> logger
     )
     {
+        _authService = authService;
         _dbService = dbService;
         _crudService = crudService;
         _logger = logger;
@@ -74,7 +77,8 @@ public class UpdateModelCommandHandler : IRequestHandler<UpdateModelCommand, IRe
         }
 
         // do the normal update action
-        var updatedModel = await _crudService.UpdateAsync<Model, ModelDto, UpdateModelCommand, AddModelCommand>(command, oldModel);
+        var loggedUserEmail = _authService.GetCurrentUserEmail();
+        var updatedModel = await _crudService.UpdateAsync<Model, ModelDto, UpdateModelCommand, AddModelCommand>(command, oldModel, loggedUserEmail ?? "app_dev");
         return Results.Ok(updatedModel);
     }
 

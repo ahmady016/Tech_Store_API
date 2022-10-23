@@ -1,10 +1,11 @@
 using System.ComponentModel.DataAnnotations;
-using System.Net;
+using AutoMapper;
 using MediatR;
 
 using DB;
-using Dtos;
 using Entities;
+using Dtos;
+using Auth;
 
 namespace Models.Commands;
 
@@ -48,21 +49,27 @@ public class AddModelCommand : IRequest<IResult>
 
 public class AddModelCommandHandler : IRequestHandler<AddModelCommand, IResult>
 {
+    private readonly IAuthService _authService;
     private readonly IDBService _dbService;
     private readonly ICrudService _crudService;
     private readonly IDBCommandService _dbCommandService;
+    private readonly IMapper _mapper;
     private readonly ILogger<Model> _logger;
     private string _errorMessage;
     public AddModelCommandHandler(
+        IAuthService authService,
         IDBService dbService,
         ICrudService crudService,
         IDBCommandService dbCommandService,
+        IMapper mapper,
         ILogger<Model> logger
     )
     {
+        _authService = authService;
         _dbService = dbService;
         _crudService = crudService;
         _dbCommandService = dbCommandService;
+        _mapper = mapper;
         _logger = logger;
     }
 
@@ -99,13 +106,17 @@ public class AddModelCommandHandler : IRequestHandler<AddModelCommand, IResult>
         }
 
         // do the normal Add action
-        var createdModel = await _crudService.AddAsync<Model, ModelDto, AddModelCommand>(command);
-
-        // create and save model stock with default values
-        _dbCommandService.Add<Stock>(new Stock() { ModelId = createdModel.Id });
+        var newModel = _mapper.Map<Model>(command);
+        var loggedUserEmail = _authService.GetCurrentUserEmail();
+        _dbService.Add<Model>(newModel, loggedUserEmail ?? "app_dev");
+        // create model stock with default values
+        _dbCommandService.Add<Stock>(new Stock() { ModelId = newModel.Id });
+        // save model and stock to db
         await _dbCommandService.SaveChangesAsync();
 
-        return Results.Ok(createdModel);
+        // map to modelDto and return it
+        var modelDto = _mapper.Map<ModelDto>(newModel);
+        return Results.Ok(modelDto);
     }
 
 }

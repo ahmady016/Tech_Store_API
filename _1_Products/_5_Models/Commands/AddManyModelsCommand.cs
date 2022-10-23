@@ -1,11 +1,13 @@
-using System.Net;
+using AutoMapper;
 using MediatR;
 
 using DB;
-using Dtos;
 using Entities;
+using Dtos;
+using Auth;
 
 namespace Models.Commands;
+
 public class AddManyModelsCommand : IRequest<IResult>
 {
     public List<AddModelCommand> NewModels { get; set; }
@@ -13,18 +15,27 @@ public class AddManyModelsCommand : IRequest<IResult>
 
 public class AddManyModelsCommandHandler : IRequestHandler<AddManyModelsCommand, IResult>
 {
+    private readonly IAuthService _authService;
     private readonly IDBService _dbService;
     private readonly ICrudService _crudService;
+    private readonly IDBCommandService _dbCommandService;
+    private readonly IMapper _mapper;
     private readonly ILogger<Product> _logger;
     private string _errorMessage;
     public AddManyModelsCommandHandler(
+        IAuthService authService,
         IDBService dbService,
         ICrudService crudService,
+        IDBCommandService dbCommandService,
+        IMapper mapper,
         ILogger<Product> logger
     )
     {
+        _authService = authService;
         _dbService = dbService;
         _crudService = crudService;
+        _dbCommandService = dbCommandService;
+        _mapper = mapper;
         _logger = logger;
     }
 
@@ -67,8 +78,17 @@ public class AddManyModelsCommandHandler : IRequestHandler<AddManyModelsCommand,
         }
 
         // do the normal Add action
-        var createdModels = await _crudService.AddManyAsync<Model, ModelDto, AddModelCommand>(command.NewModels);
-        return Results.Ok(createdModels);
+        var newModels = _mapper.Map<List<Model>>(command.NewModels);
+        var loggedUserEmail = _authService.GetCurrentUserEmail();
+        _dbService.AddRange<Model>(newModels, loggedUserEmail ?? "app_dev");
+        // create models stocks with default values
+        _dbCommandService.AddRange<Stock>(newModels.Select(model => new Stock() { ModelId = model.Id }).ToList());
+        // save models and stocks to db
+        await _dbCommandService.SaveChangesAsync();
+
+        // map to modelsDto and return it
+        var modelsDto = _mapper.Map<List<ModelDto>>(newModels);
+        return Results.Ok(modelsDto);
     }
 
 }
