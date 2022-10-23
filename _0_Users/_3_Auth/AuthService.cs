@@ -82,7 +82,7 @@ public class AuthService : IAuthService
     }
     public async Task RemoveAllExpiredOrRevokedTokensAsync(string userId)
     {
-        _dbService.GetListAndDelete<RefreshToken>(token =>
+        await _dbService.GetListAndDeleteAsync<RefreshToken>(token =>
             token.UserId == userId && (token.RevokedAt != null || token.ExpiresAt < DateTime.Now)
         );
         await _dbService.SaveChangesAsync();

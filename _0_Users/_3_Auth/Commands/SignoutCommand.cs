@@ -46,7 +46,7 @@ public class SignoutCommandHandler : IRequestHandler<SignoutCommand, IResult> {
             return Results.BadRequest(_errorMessage);
         }
 
-        bool foundTokens = _dbService.GetListAndDelete<RefreshToken>(token => token.UserId == command.UserId);
+        bool foundTokens = await _dbService.GetListAndDeleteAsync<RefreshToken>(token => token.UserId == command.UserId);
         if (foundTokens is false)
         {
             _errorMessage = "User already loggedOut !!!";
