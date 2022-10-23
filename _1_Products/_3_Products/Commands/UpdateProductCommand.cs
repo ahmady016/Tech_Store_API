@@ -1,26 +1,29 @@
-using System.Net;
 using MediatR;
 
 using DB;
 using Entities;
 using Dtos;
 using Common;
+using Auth;
 
 namespace Products.Commands;
 
 public class UpdateProductCommand : UpdateCommand<AddProductCommand> {}
 
 public class UpdateProductCommandHandler : IRequestHandler<UpdateProductCommand, IResult> {
+    private readonly IAuthService _authService;
     private readonly IDBService _dbService;
     private readonly ICrudService _crudService;
     private readonly ILogger<Brand> _logger;
     private string _errorMessage;
     public UpdateProductCommandHandler(
+        IAuthService authService,
         IDBService dbService,
         ICrudService crudService,
         ILogger<Brand> logger
     )
     {
+        _authService = authService;
         _dbService = dbService;
         _crudService = crudService;
         _logger = logger;
@@ -47,7 +50,8 @@ public class UpdateProductCommandHandler : IRequestHandler<UpdateProductCommand,
         }
 
         // do the normal update action
-        var updatedProduct = await _crudService.UpdateAsync<Product, ProductDto, UpdateProductCommand, AddProductCommand>(command, oldProduct);
+        var loggedUserEmail = _authService.GetCurrentUserEmail();
+        var updatedProduct = await _crudService.UpdateAsync<Product, ProductDto, UpdateProductCommand, AddProductCommand>(command, oldProduct, loggedUserEmail ?? "app_dev");
         return Results.Ok(updatedProduct);
     }
 

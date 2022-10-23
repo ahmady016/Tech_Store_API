@@ -1,9 +1,9 @@
-using System.Net;
 using MediatR;
 
 using DB;
 using Dtos;
 using Entities;
+using Auth;
 
 namespace Products.Commands;
 public class AddManyProductsCommand : IRequest<IResult>
@@ -13,16 +13,19 @@ public class AddManyProductsCommand : IRequest<IResult>
 
 public class AddManyProductsCommandHandler : IRequestHandler<AddManyProductsCommand, IResult>
 {
+    private readonly IAuthService _authService;
     private readonly IDBService _dbService;
     private readonly ICrudService _crudService;
     private readonly ILogger<Product> _logger;
     private string _errorMessage;
     public AddManyProductsCommandHandler(
+        IAuthService authService,
         IDBService dbService,
         ICrudService crudService,
         ILogger<Product> logger
     )
     {
+        _authService = authService;
         _dbService = dbService;
         _crudService = crudService;
         _logger = logger;
@@ -45,7 +48,8 @@ public class AddManyProductsCommandHandler : IRequestHandler<AddManyProductsComm
         }
 
         // do the normal Add action
-        var createdProducts = await _crudService.AddManyAsync<Product, ProductDto, AddProductCommand>(command.NewProducts);
+        var loggedUserEmail = _authService.GetCurrentUserEmail();
+        var createdProducts = await _crudService.AddManyAsync<Product, ProductDto, AddProductCommand>(command.NewProducts, loggedUserEmail ?? "app_dev");
         return Results.Ok(createdProducts);
     }
 

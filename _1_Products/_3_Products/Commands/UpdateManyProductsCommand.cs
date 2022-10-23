@@ -1,9 +1,9 @@
-using System.Net;
 using MediatR;
 
 using DB;
 using Entities;
 using Dtos;
+using Auth;
 
 namespace Products.Commands;
 
@@ -13,16 +13,19 @@ public class UpdateManyProductsCommand : IRequest<IResult>
 }
 
 public class UpdateManyProductsCommandHandler : IRequestHandler<UpdateManyProductsCommand, IResult> {
+    private readonly IAuthService _authService;
     private readonly IDBService _dbService;
     private readonly ICrudService _crudService;
     private readonly ILogger<Brand> _logger;
     private string _errorMessage;
     public UpdateManyProductsCommandHandler(
+        IAuthService authService,
         IDBService dbService,
         ICrudService crudService,
         ILogger<Brand> logger
     )
     {
+        _authService = authService;
         _dbService = dbService;
         _crudService = crudService;
         _logger = logger;
@@ -56,7 +59,8 @@ public class UpdateManyProductsCommandHandler : IRequestHandler<UpdateManyProduc
         }
 
         // do the normal update many items action
-        var updatedProducts = await _crudService.UpdateManyAsync<Product, ProductDto, UpdateProductCommand, AddProductCommand>(command.ModifiedProducts, oldProducts);
+        var loggedUserEmail = _authService.GetCurrentUserEmail();
+        var updatedProducts = await _crudService.UpdateManyAsync<Product, ProductDto, UpdateProductCommand, AddProductCommand>(command.ModifiedProducts, oldProducts, loggedUserEmail ?? "app_dev");
         return Results.Ok(updatedProducts);
     }
 

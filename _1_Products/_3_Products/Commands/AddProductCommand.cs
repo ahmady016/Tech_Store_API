@@ -4,6 +4,7 @@ using MediatR;
 using DB;
 using Dtos;
 using Entities;
+using Auth;
 
 namespace Products.Commands;
 
@@ -23,16 +24,19 @@ public class AddProductCommand : IRequest<IResult>
 
 public class AddProductCommandHandler : IRequestHandler<AddProductCommand, IResult>
 {
+    private readonly IAuthService _authService;
     private readonly IDBService _dbService;
     private readonly ICrudService _crudService;
     private readonly ILogger<Product> _logger;
     private string _errorMessage;
     public AddProductCommandHandler(
+        IAuthService authService,
         IDBService dbService,
         ICrudService crudService,
         ILogger<Product> logger
     )
     {
+        _authService = authService;
         _dbService = dbService;
         _crudService = crudService;
         _logger = logger;
@@ -53,7 +57,8 @@ public class AddProductCommandHandler : IRequestHandler<AddProductCommand, IResu
         }
 
         // do the normal Add action
-        var createdProduct = await _crudService.AddAsync<Product, ProductDto, AddProductCommand>(command);
+        var loggedUserEmail = _authService.GetCurrentUserEmail();
+        var createdProduct = await _crudService.AddAsync<Product, ProductDto, AddProductCommand>(command, loggedUserEmail ?? "app_dev");
         return Results.Ok(createdProduct);
     }
 
