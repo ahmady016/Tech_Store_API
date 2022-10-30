@@ -19,7 +19,7 @@ public interface IAuthService
     Task RemoveAllExpiredOrRevokedTokensAsync(string userId);
     Task<TokensResponse> GenerateTokensAsync(User existedUser);
 
-    Guid? GetCurrentUserId();
+    string GetCurrentUserId();
     string GetCurrentUserEmail();
     string GetCurrentUserName();
     Task<User> GetCurrentUser();
@@ -123,16 +123,12 @@ public class AuthService : IAuthService
         }
         return null;
     }
-    public Guid? GetCurrentUserId()
+    public string GetCurrentUserId()
     {
         var claims = GetClaims();
-        if (claims is not null)
-        {
-            var userId = claims.FirstOrDefault(e => e.Type == ClaimTypes.NameIdentifier).Value;
-            if(String.IsNullOrEmpty(userId) is not false)
-                return Guid.Parse(userId);
-        }
-        return null;
+        return (claims is not null)
+            ? claims.FirstOrDefault(e => e.Type == ClaimTypes.NameIdentifier).Value
+            : null;
     }
     public string GetCurrentUserEmail()
     {

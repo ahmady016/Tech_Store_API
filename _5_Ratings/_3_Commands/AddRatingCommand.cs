@@ -5,6 +5,7 @@ using MediatR;
 using DB;
 using Entities;
 using Dtos;
+using Auth;
 
 namespace Ratings.Commands;
 
@@ -12,18 +13,21 @@ public class AddRatingCommand : RatingInput {}
 
 public class AddRatingCommandHandler : IRequestHandler<AddRatingCommand, IResult>
 {
+    private readonly IAuthService _authService;
     private readonly IDBQueryService _dbQueryService;
     private readonly IDBCommandService _dbCommandService;
     private readonly IMapper _mapper;
     private readonly ILogger<Rating> _logger;
     private string _errorMessage;
     public AddRatingCommandHandler(
+        IAuthService authService,
         IDBQueryService dbQueryService,
         IDBCommandService dbCommandService,
         IMapper mapper,
         ILogger<Rating> logger
     )
     {
+        _authService = authService;
         _dbQueryService = dbQueryService;
         _dbCommandService = dbCommandService;
         _mapper = mapper;
@@ -35,13 +39,15 @@ public class AddRatingCommandHandler : IRequestHandler<AddRatingCommand, IResult
         CancellationToken cancellationToken
     )
     {
-        var existedCustomer = await _dbQueryService.FindAsync<User>(command.CustomerId);
+        // get current logged user from auth
+        var existedCustomer = await _authService.GetCurrentUser();
         if(existedCustomer is null)
         {
-            _errorMessage = $"Customer Record with Id: {command.CustomerId} Not Found";
+            _errorMessage = $"Signin required";
             _logger.LogError(_errorMessage);
-            return Results.NotFound( new { Message = _errorMessage });
+            return Results.BadRequest(_errorMessage);
         }
+
         var existedModel = await _dbQueryService
             .GetQuery<Model>(e => e.Id == command.ModelId)
             .Include("Ratings")
@@ -64,6 +70,7 @@ public class AddRatingCommandHandler : IRequestHandler<AddRatingCommand, IResult
 
         // add newRating
         var newRating = _mapper.Map<Rating>(command);
+        newRating.CustomerId = existedCustomer.Id;
         _dbCommandService.Add<Rating>(newRating);
 
         // save both updated model values and new rating to db

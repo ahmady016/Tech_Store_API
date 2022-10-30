@@ -5,15 +5,12 @@ using MediatR;
 
 using DB;
 using Entities;
+using Auth;
 
 namespace Ratings.Commands;
 
 public class RemoveRatingCommand : IRequest<IResult>
 {
-    [Required(ErrorMessage = "CustomerId is Required")]
-    [StringLength(450, MinimumLength = 36, ErrorMessage = "CustomerId must between 36 and 450 characters")]
-    public string CustomerId { get; set; }
-
     [Required(ErrorMessage = "ModelId is Required")]
     [RegularExpression(
         @"^(\{){0,1}[0-9a-fA-F]{8}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{12}(\}){0,1}$",
@@ -24,18 +21,21 @@ public class RemoveRatingCommand : IRequest<IResult>
 
 public class RemoveRatingCommandHandler : IRequestHandler<RemoveRatingCommand, IResult>
 {
+    private readonly IAuthService _authService;
     private readonly IDBQueryService _dbQueryService;
     private readonly IDBCommandService _dbCommandService;
     private readonly IMapper _mapper;
     private readonly ILogger<Rating> _logger;
     private string _errorMessage;
     public RemoveRatingCommandHandler(
+        IAuthService authService,
         IDBQueryService dbQueryService,
         IDBCommandService dbCommandService,
         IMapper mapper,
         ILogger<Rating> logger
     )
     {
+        _authService = authService;
         _dbQueryService = dbQueryService;
         _dbCommandService = dbCommandService;
         _mapper = mapper;
@@ -47,14 +47,23 @@ public class RemoveRatingCommandHandler : IRequestHandler<RemoveRatingCommand, I
         CancellationToken cancellationToken
     )
     {
+        // get current logged user from auth
+        var customerId = _authService.GetCurrentUserId();
+        if(customerId is null)
+        {
+            _errorMessage = $"Signin required";
+            _logger.LogError(_errorMessage);
+            return Results.BadRequest(_errorMessage);
+        }
+
         var existedRating = await _dbQueryService
-            .GetQuery<Rating>(e => e.CustomerId == command.CustomerId && e.ModelId == command.ModelId)
+            .GetQuery<Rating>(e => e.CustomerId == customerId && e.ModelId == command.ModelId)
             .Include("Model")
             .Include("Model.Ratings")
             .FirstOrDefaultAsync();
         if(existedRating is null)
         {
-            _errorMessage = $"Rating Record with CustomerId: {command.CustomerId} and ModelId: {command.ModelId} Not Found";
+            _errorMessage = $"Rating Record with CustomerId: {customerId} and ModelId: {command.ModelId} Not Found";
             _logger.LogError(_errorMessage);
             return Results.NotFound( new { Message = _errorMessage });
         }
@@ -74,6 +83,6 @@ public class RemoveRatingCommandHandler : IRequestHandler<RemoveRatingCommand, I
         // save both updated model values and existed rating to db
         await _dbCommandService.SaveChangesAsync();
 
-        return Results.Ok(new { Message = $"Rating Record with CustomerId: {command.CustomerId} and ModelId: {command.ModelId} was Removed Successfully ..." });
+        return Results.Ok(new { Message = $"Rating Record with CustomerId: {customerId} and ModelId: {command.ModelId} was Removed Successfully ..." });
     }
 }

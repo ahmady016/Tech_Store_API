@@ -5,6 +5,7 @@ using MediatR;
 using DB;
 using Dtos;
 using Entities;
+using Auth;
 
 namespace Purchases.Commands;
 
@@ -17,28 +18,31 @@ public class CreatePurchaseWithItemsCommand : IRequest<IResult>
     [MinLength(1)]
     public double TotalPrice { get; set; }
 
-    [Required(ErrorMessage = "EmployeeId is Required")]
-    [StringLength(450, MinimumLength = 10, ErrorMessage = "EmployeeId must between 10 and 450 characters")]
-    public string EmployeeId { get; set; }
-
     [Required(ErrorMessage = "Items is Required")]
     public List<CreatePurchaseItemCommand> Items { get; set; }
 }
 
 public class CreatePurchaseWithItemsCommandHandler : IRequestHandler<CreatePurchaseWithItemsCommand, IResult>
 {
+    private readonly IAuthService _authService;
     private readonly IDBCommandService _dbCommandService;
     private readonly IDBQueryService _dbQueryService;
     private readonly IMapper _mapper;
+    private readonly ILogger<Purchase> _logger;
+    private string _errorMessage;
     public CreatePurchaseWithItemsCommandHandler(
+        IAuthService authService,
         IDBCommandService dbCommandService,
         IDBQueryService dbQueryService,
-        IMapper mapper
+        IMapper mapper,
+        ILogger<Purchase> logger
     )
     {
+        _authService = authService;
         _dbCommandService = dbCommandService;
         _dbQueryService = dbQueryService;
         _mapper = mapper;
+        _logger = logger;
     }
 
     public async Task<IResult> Handle(
@@ -46,6 +50,15 @@ public class CreatePurchaseWithItemsCommandHandler : IRequestHandler<CreatePurch
         CancellationToken cancellationToken
     )
     {
+        // get current logged userId from auth
+        var userId = _authService.GetCurrentUserId();
+        if(userId is null)
+        {
+            _errorMessage = $"Signin required";
+            _logger.LogError(_errorMessage);
+            return Results.BadRequest(_errorMessage);
+        }
+
         // calc each item totalPrice if not provided
         foreach (var item in command.Items)
             if (item.TotalPrice == 0.0)
@@ -57,6 +70,7 @@ public class CreatePurchaseWithItemsCommandHandler : IRequestHandler<CreatePurch
 
         // create the new purchase and save it with its items to db
         var newPurchase = _mapper.Map<Purchase>(command);
+        newPurchase.EmployeeId = userId;
         _dbCommandService.Add<Purchase>(newPurchase);
         await _dbCommandService.SaveChangesAsync();
 

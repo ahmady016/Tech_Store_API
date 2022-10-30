@@ -4,6 +4,7 @@ using MediatR;
 using DB;
 using Dtos;
 using Entities;
+using Auth;
 
 namespace Favorites.Commands;
 
@@ -11,18 +12,21 @@ public class AddModelToFavoriteCommand : CustomerFavoriteModelInput {}
 
 public class AddModelToFavoriteCommandHandler : IRequestHandler<AddModelToFavoriteCommand, IResult>
 {
+    private readonly IAuthService _authService;
     private readonly IDBQueryService _dbQueryService;
     private readonly IDBCommandService _dbCommandService;
     private readonly IMapper _mapper;
     private readonly ILogger<CustomerFavoriteModel> _logger;
     private string _errorMessage;
     public AddModelToFavoriteCommandHandler(
+        IAuthService authService,
         IDBQueryService dbQueryService,
         IDBCommandService dbCommandService,
         IMapper mapper,
         ILogger<CustomerFavoriteModel> logger
     )
     {
+        _authService = authService;
         _dbQueryService = dbQueryService;
         _dbCommandService = dbCommandService;
         _mapper = mapper;
@@ -34,13 +38,15 @@ public class AddModelToFavoriteCommandHandler : IRequestHandler<AddModelToFavori
         CancellationToken cancellationToken
     )
     {
-        var existedCustomer = await _dbQueryService.FindAsync<User>(command.CustomerId);
+        // get current logged user from auth
+        var existedCustomer = await _authService.GetCurrentUser();
         if(existedCustomer is null)
         {
-            _errorMessage = $"Customer Record with Id: {command.CustomerId} Not Found";
+            _errorMessage = $"Signin required";
             _logger.LogError(_errorMessage);
-            return Results.NotFound( new { Message = _errorMessage });
+            return Results.BadRequest(_errorMessage);
         }
+
         var existedModel = await _dbQueryService.FindAsync<Model>(command.ModelId);
         if(existedModel is null)
         {

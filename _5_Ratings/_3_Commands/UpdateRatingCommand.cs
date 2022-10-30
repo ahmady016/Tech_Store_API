@@ -5,6 +5,7 @@ using MediatR;
 using DB;
 using Entities;
 using Dtos;
+using Auth;
 
 namespace Ratings.Commands;
 
@@ -12,18 +13,21 @@ public class UpdateRatingCommand : RatingInput {}
 
 public class UpdateRatingCommandHandler : IRequestHandler<UpdateRatingCommand, IResult>
 {
+    private readonly IAuthService _authService;
     private readonly IDBQueryService _dbQueryService;
     private readonly IDBCommandService _dbCommandService;
     private readonly IMapper _mapper;
     private readonly ILogger<Rating> _logger;
     private string _errorMessage;
     public UpdateRatingCommandHandler(
+        IAuthService authService,
         IDBQueryService dbQueryService,
         IDBCommandService dbCommandService,
         IMapper mapper,
         ILogger<Rating> logger
     )
     {
+        _authService = authService;
         _dbQueryService = dbQueryService;
         _dbCommandService = dbCommandService;
         _mapper = mapper;
@@ -35,13 +39,22 @@ public class UpdateRatingCommandHandler : IRequestHandler<UpdateRatingCommand, I
         CancellationToken cancellationToken
     )
     {
+        // get current logged user from auth
+        var customerId = _authService.GetCurrentUserId();
+        if(customerId is null)
+        {
+            _errorMessage = $"Signin required";
+            _logger.LogError(_errorMessage);
+            return Results.BadRequest(_errorMessage);
+        }
+
         var existedRating = await _dbQueryService
-            .GetQuery<Rating>(e => e.CustomerId == command.CustomerId && e.ModelId == command.ModelId)
+            .GetQuery<Rating>(e => e.CustomerId == customerId && e.ModelId == command.ModelId)
             .Include("Customer")
             .FirstOrDefaultAsync();
         if(existedRating is null)
         {
-            _errorMessage = $"Rating Record with CustomerId: {command.CustomerId} and ModelId: {command.ModelId} Not Found";
+            _errorMessage = $"Rating Record with CustomerId: {customerId} and ModelId: {command.ModelId} Not Found";
             _logger.LogError(_errorMessage);
             return Results.NotFound( new { Message = _errorMessage });
         }
