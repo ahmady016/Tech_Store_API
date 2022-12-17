@@ -55,6 +55,7 @@ public class ChangeEmailCommandHandler : IRequestHandler<ChangeEmailCommand, IRe
 
         // update UserName and Email and Save it
         existedUser.UserName = existedUser.Email = command.NewEmail;
+        existedUser.EmailConfirmed = false;
         await _userManager.UpdateAsync(existedUser);
 
         // generate email confirmation token and send confirmation email

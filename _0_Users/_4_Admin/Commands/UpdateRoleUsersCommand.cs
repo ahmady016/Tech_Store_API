@@ -67,10 +67,9 @@ public class UpdateRoleUsersCommandHandler : IRequestHandler<UpdateRoleUsersComm
 
         if(command.UsersIdsToRemove is not null && command.UsersIdsToRemove.Count > 0)
         {
-            var usersRolesToRemove = command.UsersIdsToRemove
-                .Select(userId => new UserRole() { UserId = userId, RoleId = existedRole.Id })
-                .ToList();
-            _dbCommandService.RemoveRange<UserRole>(usersRolesToRemove);
+            var usersRoles = _dbCommandService.GetListAndRemoveRangeAsync<UserRole>(
+                e => e.RoleId == command.RoleId && command.UsersIdsToRemove.Contains(e.UserId)
+            );
             await _dbCommandService.SaveChangesAsync();
         }
 

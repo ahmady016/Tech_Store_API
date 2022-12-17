@@ -40,7 +40,7 @@ public class SigninCommandHandler : IRequestHandler<SigninCommand, IResult> {
         if(existedUser is not null)
         {
             var isValidPassword = await _userManager.CheckPasswordAsync(existedUser, request.Password);
-            if(isValidPassword)
+            if(isValidPassword && existedUser.EmailConfirmed)
             {
                 var tokens = await _authService.GenerateTokensAsync(existedUser);
                 return Results.Ok(new AuthDto() { User = existedUser, Tokens = tokens });

@@ -47,10 +47,9 @@ public class UnassignRoleFromUsersCommandHandler : IRequestHandler<UnassignRoleF
             return Results.NotFound( new { Message = _errorMessage });
         }
 
-        var usersRoles = command.UsersIds
-            .Select(userId => new UserRole() { UserId = userId, RoleId = existedRole.Id })
-            .ToList();
-        _dbCommandService.RemoveRange<UserRole>(usersRoles);
+        var usersRoles = _dbCommandService.GetListAndRemoveRangeAsync<UserRole>(
+            e => e.RoleId == command.RoleId && command.UsersIds.Contains(e.UserId)
+        );
         await _dbCommandService.SaveChangesAsync();
 
         return Results.Ok(new { Message = $"Role with Id: {command.RoleId} was Unassigned from The Given Users successfully ..." });

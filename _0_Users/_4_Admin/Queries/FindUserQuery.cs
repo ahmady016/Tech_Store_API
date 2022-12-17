@@ -50,14 +50,14 @@ public class FindUserQueryHandler : IRequestHandler<FindUserQuery, IResult>
             return Results.NotFound( new { Message = _errorMessage });
         }
 
-        var usersAndRoles = await _dbQueryService.GetQuery<UserRole>()
+        existedUser.Roles = await _dbQueryService.GetQuery<UserRole>()
             .Include(e => e.Role)
             .Where(e => e.UserId == request.UserId)
             .ToListAsync();
 
-        var user = _mapper.Map<UserDto>(existedUser);
-        user.Roles = _mapper.Map<List<RoleDto>>(usersAndRoles.Select(e => e.Role));
-        return Results.Ok(user);
+        var userDto = _mapper.Map<UserDto>(existedUser);
+        userDto.Roles = _mapper.Map<List<RoleDto>>(existedUser.Roles.Select(e => e.Role));
+        return Results.Ok(userDto);
     }
 
 }

@@ -49,9 +49,9 @@ public class FindRoleQueryHandler : IRequestHandler<FindRoleQuery, IResult>
         }
         var roleUsers = await _userManager.GetUsersInRoleAsync(existedRole.Name);
 
-        var role = _mapper.Map<RoleDto>(existedRole);
-        role.Users = _mapper.Map<List<UserDto>>(roleUsers);
-        return Results.Ok(role);
+        var roleDto = _mapper.Map<RoleDto>(existedRole);
+        roleDto.Users = _mapper.Map<List<UserDto>>(roleUsers);
+        return Results.Ok(roleDto);
     }
 
 }
