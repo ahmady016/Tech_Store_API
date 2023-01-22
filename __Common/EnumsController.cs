@@ -13,16 +13,7 @@ public class EnumsController : ControllerBase
     private const string _enumsNamespace = "Nawadi_Api.DB.Common";
     private dynamic _GetEnumInfo(object enumValue)
     {
-        return new
-            {
-                Id = (byte) enumValue,
-                Name = enumValue.ToString().Replace('_', ' '),
-                NameAr = enumValue.GetType()
-                    .GetMember(enumValue.ToString())
-                    .FirstOrDefault()
-                    ?.GetCustomAttribute<DisplayAttribute>(false)
-                    ?.Name ?? string.Empty
-            };
+        return new { Id = (byte)enumValue, Name = enumValue.ToString().Replace('_', ' ') };
     }
     private IEnumerable<Type> _GetAppTypes()
     {
