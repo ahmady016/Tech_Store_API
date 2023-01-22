@@ -1,5 +1,7 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.VisualBasic;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using TechStoreApi.Common;
 
 namespace TechStoreApi.DB.Common;
 
@@ -44,7 +46,7 @@ public abstract class EntityConfig<T> : IEntityTypeConfiguration<T> where T : En
 
         entity.Property(e => e.CreatedBy)
             .IsRequired()
-            .HasDefaultValue("app_dev")
+            .HasDefaultValue(AppConstants.defaultUser)
             .HasMaxLength(100)
             .HasColumnName("created_by")
             .HasColumnType("varchar(100)");

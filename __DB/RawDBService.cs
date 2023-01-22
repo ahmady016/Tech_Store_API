@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore.Query;
 using System.Linq.Expressions;
 using System.Linq.Dynamic.Core;
 
+using TechStoreApi.Common;
 using TechStoreApi.DB.Common;
 
 namespace TechStoreApi.DB;
@@ -31,11 +32,11 @@ public interface IRawDBService
     #endregion
 
     #region Commands [Add-Update-Delete]
-    void Add<T>(T item, string createdBy) where T : class;
-    void AddRange<T>(List<T> range, string createdBy) where T : class;
+    void Add<T>(T item) where T : class;
+    void AddRange<T>(List<T> range) where T : class;
 
-    void Update<T>(T item, string modifiedBy) where T : class;
-    void UpdateRange<T>(List<T> range, string modifiedBy) where T : class;
+    void Update<T>(T item) where T : class;
+    void UpdateRange<T>(List<T> range) where T : class;
 
     void Remove<T>(T item) where T : class;
     void RemoveRange<T>(List<T> range) where T : class;
@@ -169,20 +170,20 @@ public class RawDBService : IRawDBService
     #endregion
 
     #region Commands [Add-Update-Delete]
-    public void Add<T>(T item, string createdBy = "app_dev") where T : class
+    public void Add<T>(T item) where T : class
     {
         _db.Set<T>().Add(item);
     }
-    public void AddRange<T>(List<T> range, string createdBy = "app_dev") where T : class
+    public void AddRange<T>(List<T> range) where T : class
     {
         _db.Set<T>().AddRange(range);
     }
 
-    public void Update<T>(T item, string modifiedBy = "app_dev") where T : class
+    public void Update<T>(T item) where T : class
     {
         _db.Set<T>().Update(item);
     }
-    public void UpdateRange<T>(List<T> range, string modifiedBy = "app_dev") where T : class
+    public void UpdateRange<T>(List<T> range) where T : class
     {
         _db.Set<T>().UpdateRange(range);
     }

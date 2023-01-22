@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore.Query;
 using System.Linq.Expressions;
 using System.Linq.Dynamic.Core;
 
+using TechStoreApi.Common;
 using TechStoreApi.DB.Common;
 
 namespace TechStoreApi.DB;
@@ -194,13 +195,13 @@ public class DBService : IDBService
     #endregion
 
     #region Commands [Add-Update-Delete]
-    public void Add<T>(T item, string createdBy = "app_dev") where T : Entity
+    public void Add<T>(T item, string createdBy = AppConstants.defaultUser) where T : Entity
     {
         item.CreatedAt= DateTime.UtcNow;
         item.CreatedBy = createdBy;
         _db.Set<T>().Add(item);
     }
-    public void AddRange<T>(List<T> range, string createdBy = "app_dev") where T : Entity
+    public void AddRange<T>(List<T> range, string createdBy = AppConstants.defaultUser) where T : Entity
     {
         range.ForEach(item =>
         {
@@ -210,13 +211,13 @@ public class DBService : IDBService
         _db.Set<T>().AddRange(range);
     }
 
-    public void Update<T>(T item, string modifiedBy = "app_dev") where T : Entity
+    public void Update<T>(T item, string modifiedBy = AppConstants.defaultUser) where T : Entity
     {
         item.ModifiedAt = DateTime.UtcNow;
         item.ModifiedBy = modifiedBy;
         _db.Set<T>().Update(item);
     }
-    public void UpdateRange<T>(List<T> range, string modifiedBy = "app_dev") where T : Entity
+    public void UpdateRange<T>(List<T> range, string modifiedBy = AppConstants.defaultUser) where T : Entity
     {
         range.ForEach(item =>
         {
@@ -226,14 +227,14 @@ public class DBService : IDBService
         _db.Set<T>().UpdateRange(range);
     }
 
-    public void Activate<T>(T item, string activatedBy = "app_dev") where T : Entity
+    public void Activate<T>(T item, string activatedBy = AppConstants.defaultUser) where T : Entity
     {
         item.IsActive = true;
         item.ActivatedAt = DateTime.UtcNow;
         item.ActivatedBy = activatedBy;
         _db.Entry(item).State = EntityState.Modified;
     }
-    public void ActivateRange<T>(List<T> range, string activatedBy = "app_dev") where T : Entity
+    public void ActivateRange<T>(List<T> range, string activatedBy = AppConstants.defaultUser) where T : Entity
     {
         range.ForEach(item =>
         {
@@ -243,14 +244,14 @@ public class DBService : IDBService
             _db.Entry(item).State = EntityState.Modified;
         });
     }
-    public void Disable<T>(T item, string disabledBy = "app_dev") where T : Entity
+    public void Disable<T>(T item, string disabledBy = AppConstants.defaultUser) where T : Entity
     {
         item.IsActive = false;
         item.DisabledAt = DateTime.UtcNow;
         item.DisabledBy = disabledBy;
         _db.Entry(item).State = EntityState.Modified;
     }
-    public void DisableRange<T>(List<T> range, string disabledBy = "app_dev") where T : Entity
+    public void DisableRange<T>(List<T> range, string disabledBy = AppConstants.defaultUser) where T : Entity
     {
         range.ForEach(item =>
         {
@@ -261,14 +262,14 @@ public class DBService : IDBService
         });
     }
 
-    public void Delete<T>(T item, string deletedBy = "app_dev") where T : Entity
+    public void Delete<T>(T item, string deletedBy = AppConstants.defaultUser) where T : Entity
     {
         item.IsDeleted = true;
         item.DeletedAt = DateTime.UtcNow;
         item.DeletedBy = deletedBy;
         _db.Entry(item).State = EntityState.Modified;
     }
-    public void DeleteRange<T>(List<T> range, string deletedBy = "app_dev") where T : Entity
+    public void DeleteRange<T>(List<T> range, string deletedBy = AppConstants.defaultUser) where T : Entity
     {
         range.ForEach(item =>
         {
@@ -278,14 +279,14 @@ public class DBService : IDBService
             _db.Entry(item).State = EntityState.Modified;
         });
     }
-    public void Restore<T>(T item, string restoredBy = "app_dev") where T : Entity
+    public void Restore<T>(T item, string restoredBy = AppConstants.defaultUser) where T : Entity
     {
         item.IsDeleted = false;
         item.RestoredAt = DateTime.UtcNow;
         item.RestoredBy = restoredBy;
         _db.Entry(item).State = EntityState.Modified;
     }
-    public void RestoreRange<T>(List<T> range, string restoredBy = "app_dev") where T : Entity
+    public void RestoreRange<T>(List<T> range, string restoredBy = AppConstants.defaultUser) where T : Entity
     {
         range.ForEach(item =>
         {
@@ -328,7 +329,7 @@ public class DBService : IDBService
         return false;
     }
 
-    public async Task<bool> GetOneAndActivateAsync<T>(Expression<Func<T, bool>> where, string activatedBy = "app_dev") where T : Entity
+    public async Task<bool> GetOneAndActivateAsync<T>(Expression<Func<T, bool>> where, string activatedBy = AppConstants.defaultUser) where T : Entity
     {
         var item = await _db.Set<T>().Where(where).FirstOrDefaultAsync();
         if (item != null)
@@ -338,7 +339,7 @@ public class DBService : IDBService
         }
         return false;
     }
-    public async Task<bool> GetListAndActivateAsync<T>(Expression<Func<T, bool>> where, string activatedBy = "app_dev") where T : Entity
+    public async Task<bool> GetListAndActivateAsync<T>(Expression<Func<T, bool>> where, string activatedBy = AppConstants.defaultUser) where T : Entity
     {
         var set = _db.Set<T>();
         var items = await set.Where(where).ToListAsync();
@@ -349,7 +350,7 @@ public class DBService : IDBService
         }
         return false;
     }
-    public async Task<bool> GetOneAndDisableAsync<T>(Expression<Func<T, bool>> where, string disabledBy = "app_dev") where T : Entity
+    public async Task<bool> GetOneAndDisableAsync<T>(Expression<Func<T, bool>> where, string disabledBy = AppConstants.defaultUser) where T : Entity
     {
         var item = await _db.Set<T>().Where(where).FirstOrDefaultAsync();
         if (item != null)
@@ -359,7 +360,7 @@ public class DBService : IDBService
         }
         return false;
     }
-    public async Task<bool> GetListAndDisableAsync<T>(Expression<Func<T, bool>> where, string disabledBy = "app_dev") where T : Entity
+    public async Task<bool> GetListAndDisableAsync<T>(Expression<Func<T, bool>> where, string disabledBy = AppConstants.defaultUser) where T : Entity
     {
         var set = _db.Set<T>();
         var items = await set.Where(where).ToListAsync();
@@ -371,7 +372,7 @@ public class DBService : IDBService
         return false;
     }
 
-    public async Task<bool> GetOneAndDeleteAsync<T>(Expression<Func<T, bool>> where, string deletedBy = "app_dev") where T : Entity
+    public async Task<bool> GetOneAndDeleteAsync<T>(Expression<Func<T, bool>> where, string deletedBy = AppConstants.defaultUser) where T : Entity
     {
         var item = await _db.Set<T>().Where(where).FirstOrDefaultAsync();
         if (item != null)
@@ -381,7 +382,7 @@ public class DBService : IDBService
         }
         return false;
     }
-    public async Task<bool> GetListAndDeleteAsync<T>(Expression<Func<T, bool>> where, string deletedBy = "app_dev") where T : Entity
+    public async Task<bool> GetListAndDeleteAsync<T>(Expression<Func<T, bool>> where, string deletedBy = AppConstants.defaultUser) where T : Entity
     {
         var items = await _db.Set<T>().Where(where).ToListAsync();
         if (items.Count != 0)
@@ -391,7 +392,7 @@ public class DBService : IDBService
         }
         return false;
     }
-    public async Task<bool> GetOneAndRestoreAsync<T>(Expression<Func<T, bool>> where, string restoredBy = "app_dev") where T : Entity
+    public async Task<bool> GetOneAndRestoreAsync<T>(Expression<Func<T, bool>> where, string restoredBy = AppConstants.defaultUser) where T : Entity
     {
         var item = await _db.Set<T>().Where(where).FirstOrDefaultAsync();
         if (item != null)
@@ -401,7 +402,7 @@ public class DBService : IDBService
         }
         return false;
     }
-    public async Task<bool> GetListAndRestoreAsync<T>(Expression<Func<T, bool>> where, string restoredBy = "app_dev") where T : Entity
+    public async Task<bool> GetListAndRestoreAsync<T>(Expression<Func<T, bool>> where, string restoredBy = AppConstants.defaultUser) where T : Entity
     {
         var items = await _db.Set<T>().Where(where).ToListAsync();
         if (items.Count != 0)
