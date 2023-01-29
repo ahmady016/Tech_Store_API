@@ -1,5 +1,3 @@
-using System.Reflection;
-using System.ComponentModel.DataAnnotations;
 using Microsoft.AspNetCore.Mvc;
 
 namespace TechStoreApi.Common;
@@ -10,7 +8,7 @@ public class EnumsController : ControllerBase
 {
     private readonly IResultService _resultService;
     public EnumsController(IResultService resultService) => _resultService = resultService;
-    private const string _enumsNamespace = "Nawadi_Api.DB.Common";
+    private const string _enumsNamespace = "TechStoreApi.DB.Common";
     private dynamic _GetEnumInfo(object enumValue)
     {
         return new { Id = (byte)enumValue, Name = enumValue.ToString().Replace('_', ' ') };
