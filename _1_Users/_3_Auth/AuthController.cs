@@ -4,7 +4,7 @@ using MediatR;
 
 using TechStoreApi.Auth.Commands;
 
-namespace TechStoreApi.Clubs;
+namespace TechStoreApi.Auth;
 
 [ApiController]
 [Route("api/[controller]/[action]")]
