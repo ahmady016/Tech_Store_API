@@ -8,9 +8,9 @@ using Serilog;
 using MediatR;
 
 using TechStoreApi.Common;
-using TechStoreApi.Auth;
 using TechStoreApi.DB;
 using TechStoreApi.Entities;
+using TechStoreApi.Auth;
 
 // create the web server builder
 var builder = WebApplication.CreateBuilder(args);
@@ -72,7 +72,7 @@ builder.Services.AddScoped<IDBService, DBService>();
 builder.Services.AddScoped<IRawDBService, RawDBService>();
 
 // Register AuthService
-// builder.Services.AddScoped<IAuthService, AuthService>();
+builder.Services.AddScoped<IAuthService, AuthService>();
 
 // Register IHttpContextAccessor to get access to the HttpContext.
 builder.Services.AddHttpContextAccessor();
@@ -88,8 +88,11 @@ builder.Services.AddSingleton<IFileService, FileService>();
 // Register ResultService
 builder.Services.AddSingleton<IResultService, ResultService>();
 
+// Register Mapster
+builder.Services.AddMapster();
+
 // Register MediatR
-builder.Services.AddMediatR(AppDomain.CurrentDomain.Load("Tech_Store_API"));
+builder.Services.AddMediatR(typeof(Program).Assembly);
 
 // Allow CORS
 builder.Services.AddCors();
