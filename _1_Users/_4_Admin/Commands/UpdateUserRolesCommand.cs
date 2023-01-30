@@ -37,6 +37,7 @@ public class UpdateUserRolesCommandHandler : IRequestHandler<UpdateUserRolesComm
         CancellationToken cancellationToken
     )
     {
+        // if no roles given
         var isAddedRolesEmpty = command.AddedRoles is null || command.AddedRoles.Count == 0;
         var isRemovedRolesEmpty = command.RemovedRoles is null || command.RemovedRoles.Count == 0;
         if(isAddedRolesEmpty && isRemovedRolesEmpty)
@@ -52,42 +53,48 @@ public class UpdateUserRolesCommandHandler : IRequestHandler<UpdateUserRolesComm
             return _resultService.NotFound(nameof(UpdateUserRolesCommand), nameof(User), command.UserId);
 
         // if added roles not empty
-        string addedRolesErrors = string.Empty;
+        var addedRolesError = string.Empty;
         if(!isAddedRolesEmpty)
         {
             // if any role not found
             var foundRoles =  await _roleManager.Roles.CountAsync(e => command.AddedRoles.Contains(e.Name));
             if(foundRoles < command.AddedRoles.Count)
-                return _resultService.NotFound(nameof(UpdateUserRolesCommand), "one or more AddedRoles(s) not found!!!");
-            // add User To Roles
-            var addedRolesResult = await _userManager.AddToRolesAsync(existingUser, command.AddedRoles);
-            if(addedRolesResult.Succeeded is false)
-                addedRolesErrors = String.Join(", ", addedRolesResult.Errors.Select(error => error.Description).ToArray());
+                addedRolesError = "one or more AddedRoles(s) not found!!!";
+            else
+            {
+                // add User To Roles
+                var addedRolesResult = await _userManager.AddToRolesAsync(existingUser, command.AddedRoles);
+                if(addedRolesResult.Succeeded is false)
+                    addedRolesError = string.Join(", ", addedRolesResult.Errors.Select(error => error.Description));
+            }
         }
         // if removed roles not empty
-        string removedRolesErrors = string.Empty;
+        var removedRolesError = string.Empty;
         if(!isRemovedRolesEmpty)
         {
             // if any role not found
             var foundRoles =  await _roleManager.Roles.CountAsync(e => command.RemovedRoles.Contains(e.Name));
             if(foundRoles < command.RemovedRoles.Count)
-                return _resultService.NotFound(nameof(UpdateUserRolesCommand), "one or more RemovedRoles(s) not found!!!");
-            // remove User From Roles
-            var removedRolesResult = await _userManager.RemoveFromRolesAsync(existingUser, command.RemovedRoles);
-            if(removedRolesResult.Succeeded is false)
-                removedRolesErrors = String.Join(", ", removedRolesResult.Errors.Select(error => error.Description).ToArray());
+                removedRolesError = "one or more RemovedRoles(s) not found!!!";
+            else
+            {
+                // remove User From Roles
+                var removedRolesResult = await _userManager.RemoveFromRolesAsync(existingUser, command.RemovedRoles);
+                if(removedRolesResult.Succeeded is false)
+                    removedRolesError = string.Join(", ", removedRolesResult.Errors.Select(error => error.Description));
+            }
         }
 
         // return the result
-        var addedRolesSucceeded = string.IsNullOrEmpty(addedRolesErrors);
-        var removedRolesSucceeded = string.IsNullOrEmpty(removedRolesErrors);
+        var addedRolesSucceeded = string.IsNullOrEmpty(addedRolesError);
+        var removedRolesSucceeded = string.IsNullOrEmpty(removedRolesError);
         if(addedRolesSucceeded && removedRolesSucceeded)
             return _resultService.Succeeded($"User [{command.UserId}] roles has been updated successfully ...");
         else if(removedRolesSucceeded is false && removedRolesSucceeded is false)
-            return _resultService.Conflict(nameof(UpdateUserRolesCommand), string.Join(", ", new string[] { addedRolesErrors, removedRolesErrors }));
+            return _resultService.Conflict(nameof(UpdateUserRolesCommand), string.Join(", ", addedRolesError, removedRolesError));
         else if(removedRolesSucceeded is false)
-            return _resultService.Conflict(nameof(UpdateUserRolesCommand), $"User [{command.UserId}] => added to roles successfully, but there is errors in removed roles: {removedRolesErrors}");
+            return _resultService.Conflict(nameof(UpdateUserRolesCommand), $"User [{command.UserId}] => added to roles successfully, but there is errors in removed roles: {removedRolesError}");
         else
-            return _resultService.Conflict(nameof(UpdateUserRolesCommand), $"User [{command.UserId}] => removed from roles successfully, but there is errors in added roles: {addedRolesErrors}");
+            return _resultService.Conflict(nameof(UpdateUserRolesCommand), $"User [{command.UserId}] => removed from roles successfully, but there is errors in added roles: {addedRolesError}");
     }
 }
